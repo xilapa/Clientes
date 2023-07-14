@@ -9,18 +9,22 @@ public static class ClienteMappingExtensions
     {
         return new ClienteView
         {
-            Id = cliente.Id,
+            Id = cliente.Id.Value,
+            CriadoEm = cliente.CriadoEm,
+            UltimaAtualizacao = cliente.UltimaAtualizacao,
             NomeCompleto = cliente.NomeCompleto,
             Email = cliente.Email,
             Telefones = cliente.Telefones.Select(t => t.ToViewModel()).ToArray()
         };
     }
 
-    public static TelefoneView ToViewModel(this Telefone telefone)
+    private static TelefoneView ToViewModel(this Telefone telefone)
     {
         return new TelefoneView
         {
-            Id = telefone.Id,
+            Id = telefone.Id.Value,
+            CriadoEm = telefone.CriadoEm,
+            UltimaAtualizacao = telefone.UltimaAtualizacao,
             Numero = telefone.Numero,
             Tipo = telefone.Tipo
         };

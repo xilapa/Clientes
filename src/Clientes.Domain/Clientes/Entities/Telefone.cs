@@ -14,13 +14,13 @@ public sealed class Telefone : BaseEntity<TelefoneId>
         Tipo = tipo;
     }
 
-    public string DDD { get;  private set; }
     public string Numero { get; private set; }
     public TipoTelefone Tipo { get; private set; }
 
-    public void Atualizar(AtualizarTelefoneInput input)
+    public void Atualizar(AtualizarTelefoneInput input, DateTime dataAtual)
     {
         Numero = $"{input.DDD}{input.Numero}";
         Tipo = input.Tipo;
+        UltimaAtualizacao = dataAtual;
     }
 }

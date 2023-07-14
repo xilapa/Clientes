@@ -2,6 +2,7 @@
 using Clientes.Domain.Clientes.Entities;
 using Clientes.Domain.Clientes.ValueObjects;
 using Clientes.Domain.Common;
+using Clientes.Domain.Common.Exceptions;
 
 namespace Clientes.Domain.Clientes;
 
@@ -17,7 +18,7 @@ public sealed class Cliente : BaseAggregateRoot<ClienteId>
     public string Email { get; private set; }
 
     private List<Telefone>? _telefones;
-    public IEnumerable<Telefone> Telefones => _telefones ?? Enumerable.Empty<Telefone>();
+    public ICollection<Telefone> Telefones => _telefones ?? new List<Telefone>();
 
     public void CadastrarTelefones(CadastrarTelefoneInput[] telefones, DateTime dataAtual)
     {
@@ -26,14 +27,18 @@ public sealed class Cliente : BaseAggregateRoot<ClienteId>
             _telefones.Add(new Telefone(t.DDD, t.Numero, t.Tipo, dataAtual));
     }
 
-    public void AtualizarEmail(string email)
+    public void AtualizarEmail(string email, DateTime dataAtual)
     {
         Email = email;
+        UltimaAtualizacao = dataAtual;
     }
 
-    public void AtualizarTelefone(AtualizarTelefoneInput input)
+    public void AtualizarTelefone(AtualizarTelefoneInput input, DateTime dataAtual)
     {
-        var telefone = _telefones?.First(t => t.Id == input.Id);
-        telefone?.Atualizar(input);
+        var telefone = _telefones!.FirstOrDefault(t => t.Id == new TelefoneId(input.TelefoneId));
+        if (telefone == null)
+            throw new TelefoneNaoEncontradoException();
+        telefone.Atualizar(input, dataAtual);
+        UltimaAtualizacao = dataAtual;
     }
 }
