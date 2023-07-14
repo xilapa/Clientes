@@ -2,6 +2,9 @@ bin/
 obj/
 /packages/
 
+## Xunit.Verify
+*.received.*
+
 ## Rider specific files
 riderModule.iml
 /_ReSharper.Caches/

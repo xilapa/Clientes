@@ -1,0 +1,74 @@
+﻿{
+  Total: 9,
+  Resultados: [
+    {
+      Id: Guid_1,
+      CriadoEm: DateTime_1,
+      UltimaAtualizacao: DateTime_1,
+      NomeCompleto: cliente 4,
+      Email: email4@email.com,
+      Telefones: [
+        {
+          Id: Guid_2,
+          CriadoEm: DateTime_1,
+          UltimaAtualizacao: DateTime_1,
+          Numero: 29912345674,
+          Tipo: Celular
+        },
+        {
+          Id: Guid_3,
+          CriadoEm: DateTime_1,
+          UltimaAtualizacao: DateTime_1,
+          Numero: 2912345674,
+          Tipo: Fixo
+        }
+      ]
+    },
+    {
+      Id: Guid_4,
+      CriadoEm: DateTime_2,
+      UltimaAtualizacao: DateTime_2,
+      NomeCompleto: cliente 5,
+      Email: email5@email.com,
+      Telefones: [
+        {
+          Id: Guid_5,
+          CriadoEm: DateTime_2,
+          UltimaAtualizacao: DateTime_2,
+          Numero: 29912345675,
+          Tipo: Celular
+        },
+        {
+          Id: Guid_6,
+          CriadoEm: DateTime_2,
+          UltimaAtualizacao: DateTime_2,
+          Numero: 2912345675,
+          Tipo: Fixo
+        }
+      ]
+    },
+    {
+      Id: Guid_7,
+      CriadoEm: DateTime_3,
+      UltimaAtualizacao: DateTime_3,
+      NomeCompleto: cliente 6,
+      Email: email6@email.com,
+      Telefones: [
+        {
+          Id: Guid_8,
+          CriadoEm: DateTime_3,
+          UltimaAtualizacao: DateTime_3,
+          Numero: 29912345676,
+          Tipo: Celular
+        },
+        {
+          Id: Guid_9,
+          CriadoEm: DateTime_3,
+          UltimaAtualizacao: DateTime_3,
+          Numero: 2912345676,
+          Tipo: Fixo
+        }
+      ]
+    }
+  ]
+}
