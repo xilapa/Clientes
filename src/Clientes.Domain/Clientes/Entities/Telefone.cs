@@ -10,8 +10,7 @@ public sealed class Telefone : BaseEntity<TelefoneId>
     public Telefone(string ddd, string numero, TipoTelefone tipo, DateTime dataAtual) :
         base(TelefoneId.New(), dataAtual)
     {
-        DDD = ddd;
-        Numero = numero;
+        Numero = $"{ddd}{numero}";
         Tipo = tipo;
     }
 
@@ -21,8 +20,7 @@ public sealed class Telefone : BaseEntity<TelefoneId>
 
     public void Atualizar(AtualizarTelefoneInput input)
     {
-        DDD = input.DDD;
-        Numero = input.Numero;
+        Numero = $"{input.DDD}{input.Numero}";
         Tipo = input.Tipo;
     }
 }

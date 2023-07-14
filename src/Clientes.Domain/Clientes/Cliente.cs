@@ -19,10 +19,11 @@ public sealed class Cliente : BaseAggregateRoot<ClienteId>
     private List<Telefone>? _telefones;
     public IEnumerable<Telefone> Telefones => _telefones ?? Enumerable.Empty<Telefone>();
 
-    public void AdicionarTelefones(params Telefone[] telefones)
+    public void CadastrarTelefones(CadastrarTelefoneInput[] telefones, DateTime dataAtual)
     {
         _telefones ??= new List<Telefone>();
-        _telefones.AddRange(telefones);
+        foreach (var t in telefones)
+            _telefones.Add(new Telefone(t.DDD, t.Numero, t.Tipo, dataAtual));
     }
 
     public void AtualizarEmail(string email)

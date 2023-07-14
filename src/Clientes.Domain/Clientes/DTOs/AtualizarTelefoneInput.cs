@@ -1,12 +1,6 @@
-﻿using Clientes.Domain.Clientes.Enums;
-using Clientes.Domain.Clientes.ValueObjects;
+﻿namespace Clientes.Domain.Clientes.DTOs;
 
-namespace Clientes.Domain.Clientes.DTOs;
-
-public sealed class AtualizarTelefoneInput
+public sealed class AtualizarTelefoneInput : BaseTelefoneInput
 {
-    public TelefoneId Id { get; set; } = null!;
-    public string DDD { get; set; } = null!;
-    public string Numero { get; set; } = null!;
-    public TipoTelefone Tipo { get; set; }
+    public Guid TelefoneId { get; set; }
 }
