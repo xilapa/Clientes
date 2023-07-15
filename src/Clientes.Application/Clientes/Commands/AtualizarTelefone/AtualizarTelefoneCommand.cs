@@ -1,5 +1,6 @@
 ﻿using Clientes.Application.Common.Interfaces;
 using Clientes.Application.Common.Resultados;
+using Clientes.Application.Common.Validation;
 using Clientes.Domain.Clientes.DTOs;
 using Clientes.Domain.Clientes.Erros;
 using Clientes.Domain.Clientes.ValueObjects;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Clientes.Application.Clientes.Commands.AtualizarTelefone;
 
-public sealed class AtualizarTelefoneCommand : ICommand<Resultado>
+public sealed class AtualizarTelefoneCommand : ICommand<Resultado>, IValidable
 {
     public Guid ClienteId { get; set; }
     public AtualizarTelefoneInput? Telefone { get; set; }

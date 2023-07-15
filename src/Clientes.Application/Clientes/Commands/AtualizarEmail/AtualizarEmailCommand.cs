@@ -1,5 +1,6 @@
 ﻿using Clientes.Application.Common.Interfaces;
 using Clientes.Application.Common.Resultados;
+using Clientes.Application.Common.Validation;
 using Clientes.Domain.Clientes.Erros;
 using Clientes.Domain.Clientes.ValueObjects;
 using Mediator;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Clientes.Application.Clientes.Commands.AtualizarEmail;
 
-public sealed class AtualizarEmailCommand : ICommand<Resultado>
+public sealed class AtualizarEmailCommand : ICommand<Resultado>, IValidable
 {
     public Guid ClienteId { get; set; }
     public string Email { get; set; } = null!;

@@ -1,12 +1,13 @@
 ﻿using Clientes.Application.Common.Interfaces;
 using Clientes.Application.Common.Resultados;
+using Clientes.Application.Common.Validation;
 using Clientes.Domain.Clientes.Erros;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
 namespace Clientes.Application.Clientes.Commands.ExcluirCliente;
 
-public sealed class ExcluirClienteCommand : ICommand<Resultado>
+public sealed class ExcluirClienteCommand : ICommand<Resultado>, IValidable
 {
     public string Email { get; set; } = null!;
 }

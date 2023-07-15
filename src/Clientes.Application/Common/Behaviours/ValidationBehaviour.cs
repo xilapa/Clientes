@@ -1,4 +1,5 @@
 ﻿using Clientes.Application.Common.Resultados;
+using Clientes.Application.Common.Validation;
 using Clientes.Domain.Common.Erros;
 using FluentValidation;
 using Mediator;
@@ -6,7 +7,7 @@ using Mediator;
 namespace Clientes.Application.Common.Behaviours;
 
 public sealed class ValidationBehaviour<TMessage, TResponse> : IPipelineBehavior<TMessage,TResponse> 
-    where TMessage : IMessage
+    where TMessage : IValidable
     where TResponse : IResultado, new()
 {
     private readonly IValidator<TMessage> _validator;

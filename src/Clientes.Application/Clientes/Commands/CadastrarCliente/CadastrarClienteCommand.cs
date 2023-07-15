@@ -1,5 +1,6 @@
 ﻿using Clientes.Application.Common.Interfaces;
 using Clientes.Application.Common.Resultados;
+using Clientes.Application.Common.Validation;
 using Clientes.Domain.Clientes;
 using Clientes.Domain.Clientes.DTOs;
 using Clientes.Domain.Clientes.Erros;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Clientes.Application.Clientes.Commands.CadastrarCliente;
 
-public sealed class CadastrarClienteCommand : ICommand<Resultado<ClienteView>>
+public sealed class CadastrarClienteCommand : ICommand<Resultado<ClienteView>>, IValidable
 {
     public string NomeCompleto { get; set; } = null!;
     public string Email { get; set; } = null!;
