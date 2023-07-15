@@ -13,49 +13,49 @@ namespace UnitTests.Commands;
 public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
 {
     private readonly BaseTestFixture _fixture;
+    private readonly CadastrarClienteCommandHandler _handler;
 
     public CadastrarClienteTests(BaseTestFixture fixture)
     {
         _fixture = fixture;
         _fixture.ContextMock.Invocations.Clear();
+        _handler = new CadastrarClienteCommandHandler(_fixture.ContextMock.Object, _fixture.TimeProvider);
     }
-    
+
     [Fact]
     public async Task ClienteNaoEhCadastradoComEmailExistente()
     {
         // Arrange
-        var handler = new CadastrarClienteCommandHandler(_fixture.ContextMock.Object, _fixture.TimeProvider);
         var command = new CadastrarClienteCommand
         {
             NomeCompleto = "nome", Email = "email0@email.com",
-            Telefones = new CadastrarTelefoneInput[]
+            Telefones = new TelefoneInput[]
             {
                 new () {Numero = "982345678", DDD = "29", Tipo = TipoTelefone.Celular}, 
             }
         };
 
         // Act
-        var resultado = await handler.Handle(command, CancellationToken.None);
-        
+        var resultado = await _handler.Handle(command, CancellationToken.None);
+
         // Assert
         resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.EmailJaCadastrado));
-            
+
         _fixture.ContextMock
             .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
                 Times.Never);
     }
-    
+
     [Theory]
     [InlineData("12345678", "991234567", new []{"2912345678"})]
     [InlineData("12345678", "912345678", new []{"2912345678", "29912345678"})]
     public async Task ClienteNaoEhCadastradoComTelefoneJaExistente(string telFixo, string telCelular, string[] jaCadastrados)
     {
         // Arrange
-        var handler = new CadastrarClienteCommandHandler(_fixture.ContextMock.Object, _fixture.TimeProvider);
         var command = new CadastrarClienteCommand
         {
             NomeCompleto = "nome", Email = "email@email.com",
-            Telefones = new CadastrarTelefoneInput[]
+            Telefones = new TelefoneInput[]
             {
                 new () {Numero = telFixo, DDD = "29", Tipo = TipoTelefone.Fixo}, 
                 new () {Numero = telCelular, DDD = "29", Tipo = TipoTelefone.Celular}, 
@@ -63,8 +63,8 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
         };
 
         // Act
-        var resultado = await handler.Handle(command, CancellationToken.None);
-        
+        var resultado = await _handler.Handle(command, CancellationToken.None);
+
         // Assert
         resultado.Erro.Should().NotBeNull();
         resultado.Erro!.TipoErro.Should().Be(TipoErro.Conflito);
@@ -80,28 +80,27 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
     public async Task ClienteEhCadastradoComDadosValidos()
     {
         // Arrange
-        var handler = new CadastrarClienteCommandHandler(_fixture.ContextMock.Object, _fixture.TimeProvider);
         var command = new CadastrarClienteCommand
         {
             NomeCompleto = "nome", Email = "email@email.com",
-            Telefones = new CadastrarTelefoneInput[]
+            Telefones = new TelefoneInput[]
             {
-                new () {Numero = "912345678", DDD = "20", Tipo = TipoTelefone.Celular},
+                new () {DDD = "20", Numero = "912345678", Tipo = TipoTelefone.Celular}
             }
         };
-        
+
         var expectedCliente = new ClienteView
         {
             NomeCompleto = "nome", Email = "email@email.com",
             Telefones = new TelefoneView[]
             {
-                new() { Numero = "20912345678", Tipo = TipoTelefone.Celular },
+                new() { DDD = "20", Numero = "912345678", Tipo = TipoTelefone.Celular }
             }
         };
 
         // Act
-        var resultado = await handler.Handle(command, CancellationToken.None);
-        
+        var resultado = await _handler.Handle(command, CancellationToken.None);
+
         // Assert
         resultado.Valor!.Id.Should().NotBe(Guid.Empty);
         resultado.Valor.Telefones.Select(t => t.Id).Should().NotBeNull();

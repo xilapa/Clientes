@@ -12,23 +12,13 @@ public sealed class AtualizarTelefoneCommandValidator : AbstractValidator<Atuali
         RuleFor(cmmd => cmmd.ClienteId)
             .ValidarGuid(nameof(AtualizarTelefoneCommand.ClienteId));
 
+        RuleFor(cmmd => cmmd.TelefoneId)
+            .ValidarGuid(nameof(AtualizarTelefoneCommand.TelefoneId));
+
         RuleFor(cmmd => cmmd.Telefone)
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithMessage(PropriedadeVazia(nameof(AtualizarTelefoneCommand.Telefone)))
-            .SetValidator(new AtualizarTelefoneInputValidator()!);
+            .SetValidator(new TelefoneInputValidator()!);
     }
 }
-
-public sealed class AtualizarTelefoneInputValidator : AbstractValidator<AtualizarTelefoneInput>
-{
-    public const string TelefoneId = nameof(TelefoneId);
-    public AtualizarTelefoneInputValidator()
-    {
-        RuleFor(cmmd => cmmd.Id)
-            .ValidarGuid(TelefoneId);
-
-        Include(new BaseTelefoneInputValidator());
-    }
-}
-

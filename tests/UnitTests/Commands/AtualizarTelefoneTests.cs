@@ -4,36 +4,36 @@ using Clientes.Domain.Clientes.DTOs;
 using Clientes.Domain.Clientes.Enums;
 using Clientes.Domain.Clientes.Erros;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using UnitTests.Utils;
-
 
 namespace UnitTests.Commands;
 
 public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
 {
     private readonly BaseTestFixture _fixture;
+    private readonly AtualizarTelefoneCommandHandler _handler;
 
     public AtualizarTelefoneTests(BaseTestFixture fixture)
     {
         _fixture = fixture;
         _fixture.ContextMock.Invocations.Clear();
+        _handler = new AtualizarTelefoneCommandHandler(_fixture.ContextMock.Object, _fixture.TimeProvider);
     }
-    
+
     [Fact]
     public async Task ClienteQueNaoExisteNaoEhAtualizado()
     {
         // Arrange
-        var handler = new AtualizarTelefoneCommandHandler(_fixture.ContextMock.Object, _fixture.TimeProvider);
         var command = new AtualizarTelefoneCommand
         {
             ClienteId = Guid.NewGuid(),
-            Telefone = new AtualizarTelefoneInput{Id = Guid.NewGuid(), Numero = "12345678", DDD = "23", Tipo = TipoTelefone.Fixo}
+            TelefoneId = Guid.NewGuid(),
+            Telefone = new TelefoneInput{Numero = "12345678", DDD = "23", Tipo = TipoTelefone.Fixo}
         };
-        
+
         // Act
-        var resultado = await handler.Handle(command, CancellationToken.None);
+        var resultado = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.ClienteNaoEncontrado));
@@ -42,25 +42,83 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
             .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
                 Times.Never);
     }
-    
+
     [Fact]
     public async Task TelefoneNaoExistenteNaoEhAtualizado()
     {
         // Arrange
-        var cliente = _fixture.ContextMock.Object.Clientes.First();
+        var cliente = _fixture.ContextMock.GetCliente(7);
 
-        var handler = new AtualizarTelefoneCommandHandler(_fixture.ContextMock.Object, _fixture.TimeProvider);
         var command = new AtualizarTelefoneCommand
         {
             ClienteId = cliente.Id.Value,
-            Telefone = new AtualizarTelefoneInput{Id = Guid.NewGuid(), Numero = "12345678", DDD = "24", Tipo = TipoTelefone.Fixo}
+            TelefoneId = Guid.NewGuid(),
+            Telefone = new TelefoneInput{Numero = "12345678", DDD = "24", Tipo = TipoTelefone.Fixo}
         };
 
         // Act
-        var resultado = await handler.Handle(command, CancellationToken.None);
-        
+        var resultado = await _handler.Handle(command, CancellationToken.None);
+
         // Assert
         resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.TelefoneNaoEncontrado));
+
+        _fixture.ContextMock
+            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
+                Times.Never);
+    }
+
+    [Fact]
+    public async Task TelefoneJaCadastradoNaoEhAtualizado()
+    {
+        // Arrange
+        var cliente = _fixture.ContextMock.GetCliente(0);
+        var outroCliente = _fixture.ContextMock.GetCliente(3);
+
+        var telefoneExistente = outroCliente.Telefones.First();
+
+        var command = new AtualizarTelefoneCommand
+        {
+            ClienteId = cliente.Id.Value,
+            TelefoneId = telefoneExistente.Id.Value,
+            Telefone = new TelefoneInput
+            {
+                Numero = telefoneExistente.Numero, DDD = telefoneExistente.DDD, Tipo = TipoTelefone.Fixo
+            }
+        };
+
+        // Act
+        var resultado = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.TelefoneJaCadastrado));
+
+        _fixture.ContextMock
+            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
+                Times.Never);
+    }
+
+    [Fact]
+    public async Task NaoEhPossivelDuplicarTelefoneDoClienteNaAtualizacao()
+    {
+        // Arrange
+        var cliente = _fixture.ContextMock.GetCliente(0);
+        var telefone = cliente.Telefones.First();
+
+        var command = new AtualizarTelefoneCommand
+        {
+            ClienteId = cliente.Id.Value,
+            TelefoneId = telefone.Id.Value,
+            Telefone = new TelefoneInput
+            {
+                Numero = telefone.Numero, DDD = telefone.DDD, Tipo = TipoTelefone.Fixo
+            }
+        };
+
+        // Act
+        var resultado = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.TelefoneJaCadastrado));
 
         _fixture.ContextMock
             .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
@@ -71,36 +129,34 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
     public async Task TelefoneEhAtualizadoComDadosValidos()
     {
         // Arrange
-        var cliente = _fixture.ContextMock.Object.Clientes.AsNoTracking()
-            .Include(c => c.Telefones.First())
-            .First();
+        var cliente = _fixture.ContextMock.GetCliente(0);
         var telefone = cliente.Telefones.First();
 
-        var handler = new AtualizarTelefoneCommandHandler(_fixture.ContextMock.Object, _fixture.TimeProvider);
         var command = new AtualizarTelefoneCommand
         {
             ClienteId = cliente.Id.Value,
-            Telefone = new AtualizarTelefoneInput
+            TelefoneId = telefone.Id.Value,
+            Telefone = new TelefoneInput
             {
-                Id = telefone.Id.Value, Numero = "12345678", DDD = "25", Tipo = TipoTelefone.Fixo
+                Numero = "12345678", DDD = "25", Tipo = TipoTelefone.Fixo
             }
         };
 
-        telefone.Numero.Should().NotBe(command.Telefone.NumeroCompleto);
+        telefone.DDD.Should().NotBe(command.Telefone.DDD);
+        telefone.Numero.Should().NotBe(command.Telefone.Numero);
 
         // Act
-        var result = await handler.Handle(command, CancellationToken.None);
-        
+        var result = await _handler.Handle(command, CancellationToken.None);
+
         // Assert
         result.Should().Be(Resultado.Sucesso);
 
         _fixture.ContextMock
             .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
                 Times.Once);
-        
-        var clienteComTelAtualizado = _fixture.ContextMock.Object.Clientes.AsNoTracking()
-            .Include(c => c.Telefones.First(t => t.Id == telefone.Id))
-            .First();
-        clienteComTelAtualizado.Telefones.Should().Contain(t => t.Numero == command.Telefone.NumeroCompleto);
+
+        var clienteComTelAtualizado = _fixture.ContextMock.GetCliente(0);
+        clienteComTelAtualizado.Telefones.Should()
+            .Contain(t => t.Numero == command.Telefone.Numero && t.DDD == command.Telefone.DDD);
     }
 }

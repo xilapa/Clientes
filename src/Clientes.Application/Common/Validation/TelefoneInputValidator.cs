@@ -4,9 +4,9 @@ using FluentValidation;
 
 namespace Clientes.Application.Common.Validation;
 
-public sealed class BaseTelefoneInputValidator : AbstractValidator<BaseTelefoneInput>
+public sealed class TelefoneInputValidator : AbstractValidator<TelefoneInput>
 {
-    public BaseTelefoneInputValidator()
+    public TelefoneInputValidator()
     {
         RuleFor(cmmd => cmmd.DDD)
             .ValidarDDD();
@@ -17,7 +17,7 @@ public sealed class BaseTelefoneInputValidator : AbstractValidator<BaseTelefoneI
         RuleFor(cmmd => cmmd.Numero)
             .ValidarNumeroCelular()
             .When(cmmd => TipoTelefone.Celular.Equals(cmmd.Tipo));
-        
+
         RuleFor(cmmd => cmmd.Numero)
             .ValidarNumeroFixo()
             .When(cmmd => TipoTelefone.Fixo.Equals(cmmd.Tipo));

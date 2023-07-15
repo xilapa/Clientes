@@ -13,7 +13,7 @@ public sealed class CadastrarClienteCommand : ICommand<Resultado<ClienteView>>, 
 {
     public string NomeCompleto { get; set; } = null!;
     public string Email { get; set; } = null!;
-    public CadastrarTelefoneInput[] Telefones { get; set; } = null!;
+    public TelefoneInput[] Telefones { get; set; } = null!;
 }
 
 public sealed class CadastrarClienteCommandHandler : ICommandHandler<CadastrarClienteCommand, Resultado<ClienteView>>
@@ -29,30 +29,25 @@ public sealed class CadastrarClienteCommandHandler : ICommandHandler<CadastrarCl
 
     public async ValueTask<Resultado<ClienteView>> Handle(CadastrarClienteCommand command, CancellationToken ct)
     {
-        var telsCadastrar = command.Telefones.Select(t => t.NumeroCompleto);
-        var clientesExistentes = await _context.Clientes.AsNoTracking()
-            .Where(c => c.Email == command.Email || c.Telefones.Any(t => telsCadastrar.Contains(t.Numero)))
-            .Select(c =>
-                new 
-                {
-                    c.Email,
-                    Telefones = c.Telefones.Select(t => t.Numero)
-                })
-            .ToArrayAsync(ct);
-
-        if (clientesExistentes.Length != 0 && clientesExistentes.Any(c => c.Email == command.Email))
+        var emailEmUso = await _context.EmailJaCadastrado(command.Email, ct);
+        if (emailEmUso)
             return new Resultado<ClienteView>(ClienteErros.EmailJaCadastrado);
 
-        if (clientesExistentes.Length != 0)
-        {
-            var telsCadastrados = clientesExistentes
-                .SelectMany(c => c.Telefones.Where(t => telsCadastrar.Contains(t)))
-                .ToArray();
-            return new Resultado<ClienteView>(ClienteErros.TelefonesJaCadastrados(telsCadastrados));
-        }
+        var telsCadastrar = new HashSet<TelefoneInput>(command.Telefones);
+
+        var telsEmUso = await _context.Clientes
+            .AsNoTracking()
+            .Where(c => c.Telefones.Any(
+                t => telsCadastrar.Any(tc => tc.DDD == t.DDD && tc.Numero == t.Numero))
+            )
+            .SelectMany(c => c.Telefones.Select(t => $"{t.DDD}{t.Numero}"))
+            .ToArrayAsync(ct);
+
+        if (telsEmUso.Length != 0)
+            return new Resultado<ClienteView>(ClienteErros.TelefonesJaCadastrados(telsEmUso));
 
         var cliente = new Cliente(command.NomeCompleto, command.Email, _timeProvider.Now);
-        cliente.CadastrarTelefones(command.Telefones, _timeProvider.Now);
+        cliente.CadastrarTelefones(telsCadastrar, _timeProvider.Now);
         _context.Clientes.Add(cliente);
         await _context.SaveChangesAsync(ct);
         return new Resultado<ClienteView>(cliente.ToViewModel());

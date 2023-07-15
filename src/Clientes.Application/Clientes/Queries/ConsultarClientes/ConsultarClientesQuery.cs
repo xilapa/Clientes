@@ -21,7 +21,7 @@ public sealed class ConsultarClientesQueryHandler : IQueryHandler<ConsultarClien
     {
         _context = context;
     }
-    
+
     public async ValueTask<ListaPaginada<ClienteView>> Handle(ConsultarClientesQuery query, CancellationToken ct)
     {
         // Keyset pagination https://learn.microsoft.com/en-us/ef/core/querying/pagination#keyset-pagination
@@ -43,4 +43,3 @@ public sealed class ConsultarClientesQueryHandler : IQueryHandler<ConsultarClien
         };
     }
 }
-

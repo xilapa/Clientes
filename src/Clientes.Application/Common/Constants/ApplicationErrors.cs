@@ -6,7 +6,7 @@ public static class ApplicationErrors
         $"{prop} esta vazio(a).";
     public static string PropriedadeComValorInvalido(string prop) =>
         $"{prop} possui um valor inválido.";
-    
+
     public static string PropriedadeComValorInvalido(string prop, string valorAtual) =>
         $"O(A) {prop} '{valorAtual}' é inválido(a).";
 }

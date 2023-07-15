@@ -7,9 +7,9 @@ namespace Clientes.Application.Common.Validation;
 
 public static class ValidationRules
 {
-    private static Regex _validacaoDDD = new (@"^(1[1-9]|[2-9][0-9])$", RegexOptions.Compiled);
-    private static Regex _validacaoTelefoneCelular = new (@"^9\d{8}$", RegexOptions.Compiled);
-    private static Regex _validacaoTelefoneFixo = new (@"^\d{8}$", RegexOptions.Compiled);
+    private static readonly Regex ValidacaoDdd = new ("^(1[1-9]|[2-9][0-9])$", RegexOptions.Compiled);
+    private static readonly Regex ValidacaoTelefoneCelular = new (@"^9\d{8}$", RegexOptions.Compiled);
+    private static readonly Regex ValidacaoTelefoneFixo = new (@"^\d{8}$", RegexOptions.Compiled);
 
     private const string Email = nameof(Email);
     private const string DDD = nameof(DDD);
@@ -25,7 +25,7 @@ public static class ValidationRules
             .EmailAddress()
             .WithMessage(PropriedadeComValorInvalido(Email));
     }
-    
+
     public static void ValidarGuid<T>(this IRuleBuilderInitial<T, Guid> ruleBuilder, string propriedade)
     {
         ruleBuilder
@@ -33,16 +33,16 @@ public static class ValidationRules
             .NotEmpty()
             .WithMessage(PropriedadeVazia(propriedade));
     }
-    
+
     public static void ValidarDDD<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
     {
         ruleBuilder
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .WithMessage(PropriedadeVazia(DDD))
-            .Must(ddd => _validacaoDDD.IsMatch(ddd))
+            .Must(ddd => ValidacaoDdd.IsMatch(ddd))
             .WithMessage(PropriedadeComValorInvalido(DDD));
-    } 
+    }
 
     public static void ValidarTipoTelefone<T>(this IRuleBuilderInitial<T, TipoTelefone> ruleBuilder)
     {
@@ -53,22 +53,22 @@ public static class ValidationRules
             .Must(t => Enum.IsDefined(typeof(TipoTelefone), (int) t))
             .WithMessage(PropriedadeComValorInvalido(TipoTelefone));
     }
-    
+
     public static IRuleBuilderOptions<T, string> ValidarNumeroCelular<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
     {
         return ruleBuilder
             .NotEmpty()
             .WithMessage(PropriedadeVazia(Numero))
-            .Must(ddd => _validacaoTelefoneCelular.IsMatch(ddd))
+            .Must(ddd => ValidacaoTelefoneCelular.IsMatch(ddd))
             .WithMessage((_, valor) => PropriedadeComValorInvalido(Numero, valor));
     }
-    
+
     public static IRuleBuilderOptions<T, string> ValidarNumeroFixo<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
     {
         return ruleBuilder
             .NotEmpty()
             .WithMessage(PropriedadeVazia(Numero))
-            .Must(ddd => _validacaoTelefoneFixo.IsMatch(ddd))
+            .Must(ddd => ValidacaoTelefoneFixo.IsMatch(ddd))
             .WithMessage((_, valor) => PropriedadeComValorInvalido(Numero, valor));
     }
 }

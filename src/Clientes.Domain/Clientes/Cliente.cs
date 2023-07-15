@@ -9,7 +9,7 @@ namespace Clientes.Domain.Clientes;
 
 public sealed class Cliente : BaseAggregateRoot<ClienteId>
 {
-    public Cliente(string nome, string email, DateTime dataAtual) : base(ClienteId.New(), dataAtual)
+    public Cliente(string nome, string email, DateTime dataAtual) : base(new ClienteId(), dataAtual)
     {
         NomeCompleto = nome;
         Email = email;
@@ -20,12 +20,12 @@ public sealed class Cliente : BaseAggregateRoot<ClienteId>
     public string Email { get; private set; }
 
     private readonly List<Telefone> _telefones;
-    public ICollection<Telefone> Telefones => _telefones.AsReadOnly();
+    public IReadOnlyCollection<Telefone> Telefones => _telefones;
 
-    public void CadastrarTelefones(CadastrarTelefoneInput[] telefones, DateTime dataAtual)
+    public void CadastrarTelefones(HashSet<TelefoneInput> telefones, DateTime dataAtual)
     {
         foreach (var t in telefones)
-            _telefones.Add(new Telefone(t.DDD, t.Numero, t.Tipo, dataAtual));
+            _telefones.Add(new Telefone(t, dataAtual));
     }
 
     public void AtualizarEmail(string email, DateTime dataAtual)
@@ -34,9 +34,9 @@ public sealed class Cliente : BaseAggregateRoot<ClienteId>
         UltimaAtualizacao = dataAtual;
     }
 
-    public Erro? AtualizarTelefone(AtualizarTelefoneInput input, DateTime dataAtual)
+    public Erro? AtualizarTelefone(TelefoneId id, TelefoneInput input, DateTime dataAtual)
     {
-        var telefone = _telefones.FirstOrDefault(t => t.Id == new TelefoneId(input.Id));
+        var telefone = _telefones.Find(t => t.Id == id);
         if (telefone == null)
             return ClienteErros.TelefoneNaoEncontrado;
         telefone.Atualizar(input, dataAtual);

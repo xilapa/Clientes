@@ -23,7 +23,7 @@ public sealed class ValidationBehaviour<TMessage, TResponse> : IPipelineBehavior
         var result = _validator.Validate(message);
         if (result.IsValid)
             return await next(message, cancellationToken);
-        
+
         var erros = result.Errors.Select(e => e.ErrorMessage).ToArray();
         var errorResult = new TResponse();
         errorResult.DefinirErro(Erro.Validacao(erros));

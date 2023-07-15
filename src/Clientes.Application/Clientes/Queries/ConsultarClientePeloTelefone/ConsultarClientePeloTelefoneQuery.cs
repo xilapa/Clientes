@@ -22,7 +22,7 @@ public sealed class ConsultarClientePeloTelefoneQueryHandler : IQueryHandler<Con
     {
         _context = context;
     }
-    
+
     public async ValueTask<Resultado<ClienteView>> Handle(ConsultarClientePeloTelefoneQuery query, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(query.DDD) || string.IsNullOrEmpty(query.Telefone))

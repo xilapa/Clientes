@@ -23,7 +23,7 @@ public sealed class CadastrarClienteCommandValidatorTests
         resultado.Errors.Select(_ => _.ErrorMessage).Should()
             .BeEquivalentTo(new []
             {
-                PropriedadeVazia("NomeCompleto"), 
+                PropriedadeVazia("NomeCompleto"),
                 PropriedadeVazia("Email"),
                 PropriedadeVazia("Telefones"),
             }, o => o.WithoutStrictOrdering());

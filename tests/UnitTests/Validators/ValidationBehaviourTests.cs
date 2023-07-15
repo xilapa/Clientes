@@ -16,7 +16,7 @@ public sealed class ValidationBehaviourTests
         var validator = new AtualizarEmailCommandValidator();
         _validationBehaviour = new ValidationBehaviour<AtualizarEmailCommand,Resultado>(validator);
     }
-    
+
     [Fact]
     public async Task BehaviourNaoChamaHandlerQuandoHaErroDeValidacao()
     {
@@ -26,15 +26,15 @@ public sealed class ValidationBehaviourTests
             ClienteId = Guid.NewGuid(),
             Email = "emailinvalido"
         };
-        
+
         // Act
         // Se chamar o handler ira dar null reference exception
         var resultado = await _validationBehaviour.Handle(command, CancellationToken.None, null!);
-        
+
         // Assert
         resultado.Erro.Should().BeEquivalentTo(Erro.Validacao(PropriedadeComValorInvalido("Email")));
     }
-    
+
     [Fact]
     public async Task BehaviourChamaHandlerQuandoNaoHaErroDeValidacao()
     {
@@ -44,11 +44,11 @@ public sealed class ValidationBehaviourTests
             ClienteId = Guid.NewGuid(),
             Email = "email@email.com"
         };
-        
+
         // Act
         var act = _validationBehaviour
             .Awaiting(h => h.Handle(command, CancellationToken.None, null!)) ;
-        
+
         // Assert
         await act.Should().ThrowAsync<NullReferenceException>();
     }

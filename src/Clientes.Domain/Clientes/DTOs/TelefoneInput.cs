@@ -1,11 +1,17 @@
 using Clientes.Domain.Clientes.Enums;
+using Clientes.Domain.Common;
 
 namespace Clientes.Domain.Clientes.DTOs;
 
-public abstract class BaseTelefoneInput
+public sealed class TelefoneInput : BaseValueObject
 {
     public string DDD { get; set; } = null!;
     public string Numero { get; set; } = null!;
     public TipoTelefone Tipo { get; set; }
-    public string NumeroCompleto => $"{DDD}{Numero}";
+
+    protected override IEnumerable<object?> GetEqualityComponents()
+    {
+        yield return DDD;
+        yield return Numero;
+    }
 }

@@ -6,12 +6,11 @@ namespace UnitTests.Validators;
 
 public sealed class AtualiarEmailValidatorTests
 {
-
     public AtualiarEmailValidatorTests()
     {
         _validator = new AtualizarEmailCommandValidator();
     }
-    
+
     [Fact]
     public void NaoAtualizaComEmailInvalido()
     {
@@ -21,10 +20,10 @@ public sealed class AtualiarEmailValidatorTests
             ClienteId = Guid.NewGuid(),
             Email = "emailinvalido"
         };
-        
+
         // Act
         var resultado = _validator.Validate(command);
-        
+
         // Assert
         resultado.Errors.Single().ErrorMessage.Should()
             .BeEquivalentTo(PropriedadeComValorInvalido("Email"));
@@ -43,10 +42,10 @@ public sealed class AtualiarEmailValidatorTests
             ClienteId = guid,
             Email = "email@email.com"
         };
-        
+
         // Act
         var resultado =  _validator.Validate(command);
-        
+
         // Assert
         resultado.Errors.Single().ErrorMessage.Should()
             .BeEquivalentTo(PropriedadeVazia("ClienteId"));

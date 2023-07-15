@@ -25,6 +25,7 @@ public static class ClienteMappingExtensions
             Id = telefone.Id.Value,
             CriadoEm = telefone.CriadoEm,
             UltimaAtualizacao = telefone.UltimaAtualizacao,
+            DDD = telefone.DDD,
             Numero = telefone.Numero,
             Tipo = telefone.Tipo
         };

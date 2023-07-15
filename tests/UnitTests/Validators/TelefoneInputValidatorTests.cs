@@ -6,24 +6,24 @@ using static Clientes.Application.Common.Constants.ApplicationErrors;
 
 namespace UnitTests.Validators;
 
-public sealed class BaseTelefoneInputValidatorTests
+public sealed class TelefoneInputValidatorTests
 {
-    public static TheoryData<CadastrarTelefoneInput, string[]> DadosInvalidos = new()
+    public static TheoryData<TelefoneInput, string[]> DadosInvalidos = new()
     {
         {
-            new CadastrarTelefoneInput { Numero = "", Tipo = 0, DDD = "" },
+            new TelefoneInput { Numero = "", Tipo = 0, DDD = "" },
             // Não valida o telefone pois o tipo é inválido
             new[] { PropriedadeComValorInvalido("TipoTelefone"), PropriedadeVazia("DDD") }
         },
         {
-            new CadastrarTelefoneInput { Numero = "123456789", Tipo = TipoTelefone.Celular, DDD = "01" },
+            new TelefoneInput { Numero = "123456789", Tipo = TipoTelefone.Celular, DDD = "01" },
             new[]
             {
                 PropriedadeComValorInvalido("Numero", "123456789"),
                 PropriedadeComValorInvalido("DDD")
             }
         },
-        { new CadastrarTelefoneInput { Numero = "123456789", Tipo = TipoTelefone.Fixo, DDD = "23" }, new[]
+        { new TelefoneInput { Numero = "123456789", Tipo = TipoTelefone.Fixo, DDD = "23" }, new[]
         {
             PropriedadeComValorInvalido("Numero", "123456789")
         } }
@@ -31,10 +31,10 @@ public sealed class BaseTelefoneInputValidatorTests
 
     [Theory]
     [MemberData(nameof(DadosInvalidos))]
-    public void DeveRetornarErrosQuandoDadosInvalidos(CadastrarTelefoneInput input, string[] erros)
+    public void DeveRetornarErrosQuandoDadosInvalidos(TelefoneInput input, string[] erros)
     {
         // Arrange
-        var validator = new BaseTelefoneInputValidator();
+        var validator = new TelefoneInputValidator();
 
         // Act
         var result = validator.Validate(input);

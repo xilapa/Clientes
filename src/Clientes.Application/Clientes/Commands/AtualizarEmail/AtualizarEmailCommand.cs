@@ -27,12 +27,18 @@ public sealed class AtualizarEmailCommandHandler : ICommandHandler<AtualizarEmai
 
     public async ValueTask<Resultado> Handle(AtualizarEmailCommand command, CancellationToken ct)
     {
+        var clienteId = new ClienteId(command.ClienteId);
+
+        var emailEmUso = await _context.EmailJaCadastrado(command.Email, ct);
+        if (emailEmUso)
+            return new Resultado(ClienteErros.EmailJaCadastrado);
+
         var cliente = await _context.Clientes
-            .SingleOrDefaultAsync(c => c.Id == new ClienteId(command.ClienteId), ct);
+            .SingleOrDefaultAsync(c => c.Id == clienteId, ct);
 
         if (cliente is null)
             return new Resultado(ClienteErros.ClienteNaoEncontrado);
-        
+
         cliente.AtualizarEmail(command.Email, _timeProvider.Now);
         await _context.SaveChangesAsync(ct);
         return Resultado.Sucesso;

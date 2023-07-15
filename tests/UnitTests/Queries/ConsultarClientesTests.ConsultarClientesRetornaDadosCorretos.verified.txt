@@ -12,14 +12,16 @@
           Id: Guid_2,
           CriadoEm: DateTime_1,
           UltimaAtualizacao: DateTime_1,
-          Numero: 29912345674,
+          DDD: 29,
+          Numero: 912345674,
           Tipo: Celular
         },
         {
           Id: Guid_3,
           CriadoEm: DateTime_1,
           UltimaAtualizacao: DateTime_1,
-          Numero: 2912345674,
+          DDD: 29,
+          Numero: 12345674,
           Tipo: Fixo
         }
       ]
@@ -35,14 +37,16 @@
           Id: Guid_5,
           CriadoEm: DateTime_2,
           UltimaAtualizacao: DateTime_2,
-          Numero: 29912345675,
+          DDD: 29,
+          Numero: 912345675,
           Tipo: Celular
         },
         {
           Id: Guid_6,
           CriadoEm: DateTime_2,
           UltimaAtualizacao: DateTime_2,
-          Numero: 2912345675,
+          DDD: 29,
+          Numero: 12345675,
           Tipo: Fixo
         }
       ]
@@ -58,14 +62,16 @@
           Id: Guid_8,
           CriadoEm: DateTime_3,
           UltimaAtualizacao: DateTime_3,
-          Numero: 29912345676,
+          DDD: 29,
+          Numero: 912345676,
           Tipo: Celular
         },
         {
           Id: Guid_9,
           CriadoEm: DateTime_3,
           UltimaAtualizacao: DateTime_3,
-          Numero: 2912345676,
+          DDD: 29,
+          Numero: 12345676,
           Tipo: Fixo
         }
       ]

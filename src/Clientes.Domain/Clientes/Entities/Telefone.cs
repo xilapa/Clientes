@@ -7,19 +7,21 @@ namespace Clientes.Domain.Clientes.Entities;
 
 public sealed class Telefone : BaseEntity<TelefoneId>
 {
-    public Telefone(string ddd, string numero, TipoTelefone tipo, DateTime dataAtual) :
-        base(TelefoneId.New(), dataAtual)
+    public Telefone(TelefoneInput telefoneInput, DateTime dataAtual) : base(new TelefoneId(), dataAtual)
     {
-        Numero = $"{ddd}{numero}";
-        Tipo = tipo;
+        DDD = telefoneInput.DDD;
+        Numero = telefoneInput.Numero;
+        Tipo = telefoneInput.Tipo;
     }
 
+    public string DDD { get; private set; }
     public string Numero { get; private set; }
     public TipoTelefone Tipo { get; private set; }
 
-    public void Atualizar(AtualizarTelefoneInput input, DateTime dataAtual)
+    public void Atualizar(TelefoneInput input, DateTime dataAtual)
     {
-        Numero = $"{input.DDD}{input.Numero}";
+        DDD = input.DDD;
+        Numero = input.Numero;
         Tipo = input.Tipo;
         UltimaAtualizacao = dataAtual;
     }

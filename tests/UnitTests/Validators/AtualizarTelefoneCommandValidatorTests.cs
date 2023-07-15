@@ -6,7 +6,6 @@ namespace UnitTests.Validators;
 
 public sealed class AtualizarTelefoneCommandValidatorTests
 {
-
     [Fact]
     public void DadosInvalidosRetornamErro()
     {
@@ -14,6 +13,7 @@ public sealed class AtualizarTelefoneCommandValidatorTests
         var command = new AtualizarTelefoneCommand
         {
             ClienteId = Guid.Empty,
+            TelefoneId = Guid.Empty,
             Telefone = null
         };
         var validator = new AtualizarTelefoneCommandValidator();
@@ -25,7 +25,8 @@ public sealed class AtualizarTelefoneCommandValidatorTests
         resultado.Errors.Select(_ => _.ErrorMessage).Should()
             .BeEquivalentTo(new []
             {
-                PropriedadeVazia("ClienteId"), PropriedadeVazia("Telefone")
+                PropriedadeVazia("ClienteId"), PropriedadeVazia("TelefoneId"),
+                PropriedadeVazia("Telefone")
             }, o => o.WithoutStrictOrdering());
     }
 }

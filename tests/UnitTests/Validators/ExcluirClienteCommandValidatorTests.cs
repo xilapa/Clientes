@@ -11,7 +11,7 @@ public sealed class ExcluirClienteCommandValidatorTests
     public void DadosInvalidosRetornamErro(string email)
     {
         // Arrange
-        var command = new ExcluirClienteCommand { Email = "emailinvalido" };
+        var command = new ExcluirClienteCommand { Email = email };
         var validator = new ExcluirClienteCommandValidator();
 
         // Act

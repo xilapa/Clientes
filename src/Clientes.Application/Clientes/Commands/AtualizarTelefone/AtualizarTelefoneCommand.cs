@@ -12,7 +12,8 @@ namespace Clientes.Application.Clientes.Commands.AtualizarTelefone;
 public sealed class AtualizarTelefoneCommand : ICommand<Resultado>, IValidable
 {
     public Guid ClienteId { get; set; }
-    public AtualizarTelefoneInput? Telefone { get; set; }
+    public Guid TelefoneId { get; set; }
+    public TelefoneInput? Telefone { get; set; }
 }
 
 public sealed class AtualizarTelefoneCommandHandler : ICommandHandler<AtualizarTelefoneCommand, Resultado>
@@ -28,22 +29,21 @@ public sealed class AtualizarTelefoneCommandHandler : ICommandHandler<AtualizarT
 
     public async ValueTask<Resultado> Handle(AtualizarTelefoneCommand command, CancellationToken ct)
     {
+        var telefoneJaCadastrado = await _context.TelefoneJaCadastrado(command.Telefone!.DDD, command.Telefone.Numero, ct);
+        if (telefoneJaCadastrado)
+            return new Resultado(ClienteErros.TelefoneJaCadastrado);
+
+        var clienteId = new ClienteId(command.ClienteId);
         var cliente = await _context.Clientes
-            .Include(c => c.Telefones
-                .Any(t => t.Id == new TelefoneId(command.Telefone!.Id))
-            )
-            .Where(c => c.Id == new ClienteId(command.ClienteId))
+            .Include(c => c.Telefones)
+            .Where(c => c.Id == clienteId)
             .SingleOrDefaultAsync(ct);
 
         if (cliente is null)
             return new Resultado(ClienteErros.ClienteNaoEncontrado);
-        
-        var telefoneJaCadastrado = _context.Clientes.AsNoTracking()
-            .Any(c => c.Telefones.Any(t => t.Numero == command.Telefone!.NumeroCompleto));
-        if (telefoneJaCadastrado)
-            return new Resultado(ClienteErros.TelefoneJaCadastrado);
 
-        var erro = cliente.AtualizarTelefone(command.Telefone!, _timeProvider.Now);
+        var telefoneId = new TelefoneId(command.TelefoneId);
+        var erro = cliente.AtualizarTelefone(telefoneId, command.Telefone!, _timeProvider.Now);
         if (erro != null)
             return new Resultado(erro);
 
