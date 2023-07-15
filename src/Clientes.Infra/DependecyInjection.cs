@@ -7,6 +7,7 @@ using FluentValidation;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Clientes.Infra;
@@ -43,5 +44,18 @@ public static class DependencyInjection
         });
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         return services;
+    }
+
+    public static Task AplicarMigrations(this IServiceProvider serviceProvider)
+    {
+        return Task.Run(async () =>
+        {
+            await using var scope = serviceProvider.CreateAsyncScope();
+            await using var context = scope.ServiceProvider.GetRequiredService<ClientesContext>();
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<ClientesContext>>();
+            logger.LogInformation("{Data}: Aplicando migrations", DateTime.UtcNow);
+            await context.Database.MigrateAsync();
+            logger.LogInformation("{Data}: Migrations aplicadas", DateTime.UtcNow);
+        });
     }
 }

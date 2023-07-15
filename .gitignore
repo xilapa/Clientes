@@ -2,6 +2,14 @@ bin/
 obj/
 /packages/
 
+## Sqlite
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+*.db-shm
+*.db-wal
+
 ## Xunit.Verify
 *.received.*
 
