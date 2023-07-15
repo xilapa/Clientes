@@ -31,7 +31,7 @@ public sealed class ConsultarClientePeloTelefoneTests : IClassFixture<BaseTestFi
 
         var query = new ConsultarClientePeloTelefoneQuery
         {
-            DDD = telefone.Numero[..2], Telefone = telefone.Numero[2..]
+            DDD = telefone.DDD, Telefone = telefone.Numero
         };
 
         // Act

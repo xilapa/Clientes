@@ -28,10 +28,9 @@ public sealed class ConsultarClientePeloTelefoneQueryHandler : IQueryHandler<Con
         if (string.IsNullOrEmpty(query.DDD) || string.IsNullOrEmpty(query.Telefone))
             return new Resultado<ClienteView>(ClienteErros.ClienteNaoEncontrado);
 
-        var telefoneBusca = $"{query.DDD}{query.Telefone}";
         var cliente = await _context.Clientes.AsNoTrackingWithIdentityResolution()
             .Include(c => c.Telefones)
-            .Where(c => c.Telefones.Any(t => t.Numero == telefoneBusca))
+            .Where(c => c.Telefones.Any(t => t.Numero == query.Telefone && t.DDD == query.DDD))
             .Select(c => c.ToViewModel())
             .SingleOrDefaultAsync(ct);
 
