@@ -1,4 +1,4 @@
-﻿using Clientes.Application.Common.Interfaces;
+﻿using Clientes.Application.Common;
 using Clientes.Application.Common.Resultados;
 using Clientes.Domain.Clientes;
 using Clientes.Domain.Clientes.DTOs;

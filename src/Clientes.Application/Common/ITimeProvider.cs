@@ -1,4 +1,4 @@
-﻿namespace Clientes.Application.Common.Interfaces;
+﻿namespace Clientes.Application.Common;
 
 public interface ITimeProvider
 {
