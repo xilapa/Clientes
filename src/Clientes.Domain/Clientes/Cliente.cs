@@ -9,6 +9,10 @@ namespace Clientes.Domain.Clientes;
 
 public sealed class Cliente : BaseAggregateRoot<ClienteId>
 {
+    // ctor pro EF
+    public Cliente()
+    { }
+
     public Cliente(string nome, string email, DateTime dataAtual) : base(new ClienteId(), dataAtual)
     {
         NomeCompleto = nome;

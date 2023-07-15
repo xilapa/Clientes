@@ -7,6 +7,10 @@ namespace Clientes.Domain.Clientes.Entities;
 
 public sealed class Telefone : BaseEntity<TelefoneId>
 {
+    // ctor pro EF
+    public Telefone()
+    { }
+
     public Telefone(TelefoneInput telefoneInput, DateTime dataAtual) : base(new TelefoneId(), dataAtual)
     {
         DDD = telefoneInput.DDD;

@@ -2,6 +2,9 @@
 
 public abstract class BaseEntity<TId> where TId : notnull
 {
+    // ctor pro EF
+    protected BaseEntity(){}
+
     protected BaseEntity(TId id, DateTime dataAtual)
     {
         Id = id;
