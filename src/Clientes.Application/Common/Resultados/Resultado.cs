@@ -48,5 +48,6 @@ public sealed class Resultado : IResultado
 
 public interface IResultado
 {
+    Erro? Erro { get; }
     void DefinirErro(Erro erro);
 }

@@ -17,7 +17,7 @@ public sealed class CadastrarClienteCommandValidator : AbstractValidator<Cadastr
 
         RuleFor(cmmd => cmmd.Telefones)
             .Cascade(CascadeMode.Stop)
-            .ForEach(t => t.NotNull())
+            .NotNull().WithMessage(PropriedadeVazia(nameof(CadastrarClienteCommand.Telefones)))
             .ForEach(t => t.SetValidator(new BaseTelefoneInputValidator()));
     }
 }

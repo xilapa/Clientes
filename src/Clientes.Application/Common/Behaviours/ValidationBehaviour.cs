@@ -5,7 +5,7 @@ using Mediator;
 
 namespace Clientes.Application.Common.Behaviours;
 
-public class ValidationBehaviour<TMessage, TResponse> : IPipelineBehavior<TMessage,TResponse> 
+public sealed class ValidationBehaviour<TMessage, TResponse> : IPipelineBehavior<TMessage,TResponse> 
     where TMessage : IMessage
     where TResponse : IResultado, new()
 {

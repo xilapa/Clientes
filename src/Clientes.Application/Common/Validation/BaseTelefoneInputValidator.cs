@@ -4,7 +4,7 @@ using FluentValidation;
 
 namespace Clientes.Application.Common.Validation;
 
-public class BaseTelefoneInputValidator : AbstractValidator<BaseTelefoneInput>
+public sealed class BaseTelefoneInputValidator : AbstractValidator<BaseTelefoneInput>
 {
     public BaseTelefoneInputValidator()
     {

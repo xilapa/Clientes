@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using Clientes.Domain.Clientes.DTOs;
 using Clientes.Domain.Clientes.Enums;
 using FluentValidation;
 using static Clientes.Application.Common.Constants.ApplicationErrors;
@@ -15,6 +14,7 @@ public static class ValidationRules
     private const string Email = nameof(Email);
     private const string DDD = nameof(DDD);
     private const string Numero = nameof(Numero);
+    private const string TipoTelefone = nameof(TipoTelefone);
 
     public static void ValidarEmail<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
     {
@@ -30,7 +30,7 @@ public static class ValidationRules
     {
         ruleBuilder
         .Cascade(CascadeMode.Stop)
-            .NotEqual(Guid.Empty)
+            .NotEmpty()
             .WithMessage(PropriedadeVazia(propriedade));
     }
     
@@ -49,9 +49,9 @@ public static class ValidationRules
         ruleBuilder
             .Cascade(CascadeMode.Stop)
             .NotEqual(default(TipoTelefone))
-            .WithMessage(PropriedadeComValorInvalido(nameof(BaseTelefoneInput.Tipo)))
+            .WithMessage(PropriedadeComValorInvalido(TipoTelefone))
             .Must(t => Enum.IsDefined(typeof(TipoTelefone), (int) t))
-            .WithMessage(PropriedadeComValorInvalido(nameof(BaseTelefoneInput.Tipo)));
+            .WithMessage(PropriedadeComValorInvalido(TipoTelefone));
     }
     
     public static IRuleBuilderOptions<T, string> ValidarNumeroCelular<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
