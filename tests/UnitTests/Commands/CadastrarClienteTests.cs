@@ -29,9 +29,9 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
         var command = new CadastrarClienteCommand
         {
             NomeCompleto = "nome", Email = "email0@email.com",
-            Telefones = new TelefoneInput[]
+            Telefones = new HashSet<TelefoneInput>
             {
-                new () {Numero = "982345678", DDD = "29", Tipo = TipoTelefone.Celular}, 
+                new () {Numero = "982345678", DDD = "29", Tipo = TipoTelefone.Celular},
             }
         };
 
@@ -55,7 +55,7 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
         var command = new CadastrarClienteCommand
         {
             NomeCompleto = "nome", Email = "email@email.com",
-            Telefones = new TelefoneInput[]
+            Telefones = new HashSet<TelefoneInput>
             {
                 new () {Numero = telFixo, DDD = "29", Tipo = TipoTelefone.Fixo}, 
                 new () {Numero = telCelular, DDD = "29", Tipo = TipoTelefone.Celular}, 
@@ -83,7 +83,7 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
         var command = new CadastrarClienteCommand
         {
             NomeCompleto = "nome", Email = "email@email.com",
-            Telefones = new TelefoneInput[]
+            Telefones = new HashSet<TelefoneInput>
             {
                 new () {DDD = "20", Numero = "912345678", Tipo = TipoTelefone.Celular}
             }

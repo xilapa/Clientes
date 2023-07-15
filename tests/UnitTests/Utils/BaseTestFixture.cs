@@ -1,6 +1,7 @@
 ﻿using Clientes.Application.Common;
 using Clientes.Domain.Clientes;
 using Clientes.Domain.Clientes.DTOs;
+using Clientes.Domain.Clientes.Entities;
 using Clientes.Domain.Clientes.Enums;
 using Microsoft.EntityFrameworkCore;
 using MockQueryable.Moq;
@@ -16,6 +17,7 @@ public sealed class BaseTestFixture
     public BaseTestFixture()
     {
         var clientes = new List<Cliente>();
+        var telefones = new List<Telefone>();
         var dataAtual = DateTime.Now;
         foreach (var i in Enumerable.Range(0, 9))
         {
@@ -28,11 +30,14 @@ public sealed class BaseTestFixture
 
             cliente.CadastrarTelefones(telInput, dataAtual.AddDays(i));
             clientes.Add(cliente);
+            telefones.AddRange(cliente.Telefones);
         }
 
         var clientesMock = clientes.AsQueryable().BuildMockDbSet();
+        var telefonesMock = telefones.AsQueryable().BuildMockDbSet();
         ContextMock = new Mock<IClientesContext>();
         ContextMock.Setup(c => c.Clientes).Returns(clientesMock.Object);
+        ContextMock.Setup(c => c.Telefones).Returns(telefonesMock.Object);
 
         TimeProvider = new Mock<ITimeProvider>().Object;
     }
