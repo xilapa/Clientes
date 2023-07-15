@@ -1,6 +1,8 @@
-﻿namespace Clientes.Domain.Clientes.ValueObjects;
+﻿using Clientes.Domain.Common;
 
-public sealed record ClienteId(Guid Value)
+namespace Clientes.Domain.Clientes.ValueObjects;
+
+public sealed record ClienteId(Guid Value) : IId<Guid>
 {
     public ClienteId() : this(Guid.NewGuid())
     { }
