@@ -1,20 +1,21 @@
 ﻿using Clientes.Application.Common.Interfaces;
+using Clientes.Application.Common.Resultados;
 using Clientes.Domain.Clientes;
 using Clientes.Domain.Clientes.DTOs;
-using Clientes.Domain.Common.Exceptions;
+using Clientes.Domain.Clientes.Erros;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
 namespace Clientes.Application.Clientes.Commands.CadastrarCliente;
 
-public sealed class CadastrarClienteCommand : ICommand<ClienteView>
+public sealed class CadastrarClienteCommand : ICommand<Resultado<ClienteView>>
 {
     public string NomeCompleto { get; set; } = null!;
     public string Email { get; set; } = null!;
     public CadastrarTelefoneInput[] Telefones { get; set; } = null!;
 }
 
-public sealed class CadastrarClienteCommandHandler : ICommandHandler<CadastrarClienteCommand, ClienteView>
+public sealed class CadastrarClienteCommandHandler : ICommandHandler<CadastrarClienteCommand, Resultado<ClienteView>>
 {
     private readonly IClientesContext _context;
     private readonly ITimeProvider _timeProvider;
@@ -25,7 +26,7 @@ public sealed class CadastrarClienteCommandHandler : ICommandHandler<CadastrarCl
         _timeProvider = timeProvider;
     }
 
-    public async ValueTask<ClienteView> Handle(CadastrarClienteCommand command, CancellationToken ct)
+    public async ValueTask<Resultado<ClienteView>> Handle(CadastrarClienteCommand command, CancellationToken ct)
     {
         var telsCadastrar = command.Telefones.Select(t => t.NumeroCompleto);
         var clientesExistentes = await _context.Clientes.AsNoTracking()
@@ -39,20 +40,20 @@ public sealed class CadastrarClienteCommandHandler : ICommandHandler<CadastrarCl
             .ToArrayAsync(ct);
 
         if (clientesExistentes.Length != 0 && clientesExistentes.Any(c => c.Email == command.Email))
-            throw new EmailEmUsoExeception();
+            return new Resultado<ClienteView>(ClienteErros.EmailJaCadastrado);
 
         if (clientesExistentes.Length != 0)
         {
             var telsCadastrados = clientesExistentes
                 .SelectMany(c => c.Telefones.Where(t => telsCadastrar.Contains(t)))
                 .ToArray();
-            throw new TelefonesEmUsoException(telsCadastrados);
+            return new Resultado<ClienteView>(ClienteErros.TelefonesJaCadastrados(telsCadastrados));
         }
 
         var cliente = new Cliente(command.NomeCompleto, command.Email, _timeProvider.Now);
         cliente.CadastrarTelefones(command.Telefones, _timeProvider.Now);
         _context.Clientes.Add(cliente);
         await _context.SaveChangesAsync(ct);
-        return cliente.ToViewModel();
+        return new Resultado<ClienteView>(cliente.ToViewModel());
     }
 }

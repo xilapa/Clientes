@@ -37,7 +37,7 @@ public sealed class ClienteTests
         var idTelAtualizar = cliente.Telefones.First().Id;
         var telUpdate = new AtualizarTelefoneInput
         {
-            TelefoneId = idTelAtualizar.Value,
+            Id = idTelAtualizar.Value,
             Numero = "33332222", DDD = "99", Tipo = TipoTelefone.Fixo
         };
         

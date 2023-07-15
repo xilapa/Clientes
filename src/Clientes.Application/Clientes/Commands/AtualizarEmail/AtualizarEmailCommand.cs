@@ -1,18 +1,19 @@
 ﻿using Clientes.Application.Common.Interfaces;
+using Clientes.Application.Common.Resultados;
+using Clientes.Domain.Clientes.Erros;
 using Clientes.Domain.Clientes.ValueObjects;
-using Clientes.Domain.Common.Exceptions;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
 namespace Clientes.Application.Clientes.Commands.AtualizarEmail;
 
-public sealed class AtualizarEmailCommand : ICommand
+public sealed class AtualizarEmailCommand : ICommand<Resultado>
 {
     public Guid ClienteId { get; set; }
     public string Email { get; set; } = null!;
 }
 
-public sealed class AtualizarEmailCommandHandler : ICommandHandler<AtualizarEmailCommand>
+public sealed class AtualizarEmailCommandHandler : ICommandHandler<AtualizarEmailCommand, Resultado>
 {
     private readonly IClientesContext _context;
     private readonly ITimeProvider _timeProvider;
@@ -23,16 +24,16 @@ public sealed class AtualizarEmailCommandHandler : ICommandHandler<AtualizarEmai
         _timeProvider = timeProvider;
     }
 
-    public async ValueTask<Unit> Handle(AtualizarEmailCommand command, CancellationToken ct)
+    public async ValueTask<Resultado> Handle(AtualizarEmailCommand command, CancellationToken ct)
     {
         var cliente = await _context.Clientes
             .SingleOrDefaultAsync(c => c.Id == new ClienteId(command.ClienteId), ct);
-        
+
         if (cliente is null)
-            throw new ClienteNaoEncontradoException();
+            return new Resultado(ClienteErros.ClienteNaoEncontrado);
         
         cliente.AtualizarEmail(command.Email, _timeProvider.Now);
         await _context.SaveChangesAsync(ct);
-        return Unit.Value;
+        return Resultado.Sucesso;
     }
 }

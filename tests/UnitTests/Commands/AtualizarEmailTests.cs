@@ -1,7 +1,7 @@
 ﻿using Clientes.Application.Clientes.Commands.AtualizarEmail;
-using Clientes.Domain.Common.Exceptions;
+using Clientes.Application.Common.Resultados;
+using Clientes.Domain.Clientes.Erros;
 using FluentAssertions;
-using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using UnitTests.Utils;
@@ -30,11 +30,11 @@ public sealed class AtualizarEmailTests : IClassFixture<BaseTestFixture>
         };
         
         // Act
-        var act = handler.Awaiting(h => h.Handle(command, CancellationToken.None));
+        var resultado = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowExactlyAsync<ClienteNaoEncontradoException>();
-        
+        resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.ClienteNaoEncontrado));
+
         _fixture.ContextMock
             .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
                 Times.Never);
@@ -44,7 +44,7 @@ public sealed class AtualizarEmailTests : IClassFixture<BaseTestFixture>
     public async Task EmailEhAtualizado()
     {
         // Arrange
-        var novoEmail = "novo@email.com";
+        const string novoEmail = "novo@email.com";
         var cliente = _fixture.ContextMock.Object.Clientes.AsNoTracking().First();
         cliente.Email.Should().NotBe(novoEmail);
         
@@ -56,10 +56,10 @@ public sealed class AtualizarEmailTests : IClassFixture<BaseTestFixture>
         };
         
         // Act
-        var result = await handler.Handle(command, CancellationToken.None);
-        
+        var resultado = await handler.Handle(command, CancellationToken.None);
+
         // Assert
-        result.Should().Be(Unit.Value);
+        resultado.Should().BeEquivalentTo(Resultado.Sucesso);
 
         _fixture.ContextMock
             .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),

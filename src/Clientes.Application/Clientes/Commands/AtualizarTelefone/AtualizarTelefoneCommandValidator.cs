@@ -29,9 +29,9 @@ public sealed class AtualizarTelefoneInputValidator : AbstractValidator<Atualiza
 {
     public AtualizarTelefoneInputValidator()
     {
-        RuleFor(cmmd => cmmd.TelefoneId)
+        RuleFor(cmmd => cmmd.Id)
             .NotEmpty()
-            .WithMessage(PropriedadeVazia(nameof(AtualizarTelefoneInput.TelefoneId)));
+            .WithMessage(PropriedadeVazia(nameof(AtualizarTelefoneInput.Id)));
         
         RuleFor(cmmd => cmmd.DDD)
             .Cascade(CascadeMode.Stop)

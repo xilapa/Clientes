@@ -2,5 +2,5 @@
 
 public sealed class AtualizarTelefoneInput : BaseTelefoneInput
 {
-    public Guid TelefoneId { get; set; }
+    public Guid Id { get; set; }
 }

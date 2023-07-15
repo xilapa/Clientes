@@ -1,19 +1,20 @@
 ﻿using Clientes.Application.Common.Interfaces;
+using Clientes.Application.Common.Resultados;
 using Clientes.Domain.Clientes;
 using Clientes.Domain.Clientes.DTOs;
-using Clientes.Domain.Common.Exceptions;
+using Clientes.Domain.Clientes.Erros;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
 namespace Clientes.Application.Clientes.Queries.ConsultarClientePeloTelefone;
 
-public sealed class ConsultarClientePeloTelefoneQuery : IQuery<ClienteView>
+public sealed class ConsultarClientePeloTelefoneQuery : IQuery<Resultado<ClienteView>>
 {
     public string DDD { get; set; } = null!;
     public string Telefone { get; set; } = null!;
 }
 
-public sealed class ConsultarClientePeloTelefoneQueryHandler : IQueryHandler<ConsultarClientePeloTelefoneQuery, ClienteView>
+public sealed class ConsultarClientePeloTelefoneQueryHandler : IQueryHandler<ConsultarClientePeloTelefoneQuery, Resultado<ClienteView>>
 {
     private readonly IClientesContext _context;
 
@@ -22,15 +23,20 @@ public sealed class ConsultarClientePeloTelefoneQueryHandler : IQueryHandler<Con
         _context = context;
     }
     
-    public async ValueTask<ClienteView> Handle(ConsultarClientePeloTelefoneQuery query, CancellationToken ct)
+    public async ValueTask<Resultado<ClienteView>> Handle(ConsultarClientePeloTelefoneQuery query, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(query.DDD) || string.IsNullOrEmpty(query.Telefone))
-            throw new ClienteNaoEncontradoException();
+            return new Resultado<ClienteView>(ClienteErros.ClienteNaoEncontrado);
 
-        return await _context.Clientes.AsNoTrackingWithIdentityResolution()
+        var telefoneBusca = $"{query.DDD}{query.Telefone}";
+        var cliente = await _context.Clientes.AsNoTrackingWithIdentityResolution()
             .Include(c => c.Telefones)
-            .Where(c => c.Telefones.Any(t => t.Numero == $"{query.DDD}{query.Telefone}"))
+            .Where(c => c.Telefones.Any(t => t.Numero == telefoneBusca))
             .Select(c => c.ToViewModel())
-            .SingleOrDefaultAsync(ct) ?? throw new ClienteNaoEncontradoException();
+            .SingleOrDefaultAsync(ct);
+
+        return cliente is null
+            ? new Resultado<ClienteView>(ClienteErros.ClienteNaoEncontrado)
+            : new Resultado<ClienteView>(cliente);
     }
 }

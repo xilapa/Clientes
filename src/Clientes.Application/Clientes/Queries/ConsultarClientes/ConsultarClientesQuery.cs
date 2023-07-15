@@ -33,7 +33,7 @@ public sealed class ConsultarClientesQueryHandler : IQueryHandler<ConsultarClien
         {
             Total = await _context.Clientes.CountAsync(ct),
             Resultados = await _context.Clientes
-                .AsNoTrackingWithIdentityResolution()
+                .AsNoTracking()
                 .OrderBy(c => c.CriadoEm)
                 .Include(c => c.Telefones)
                 .Where(c => !query.UltimoCriadoEm.HasValue || c.CriadoEm > ultimoCriadoEm)

@@ -1,6 +1,7 @@
 ﻿using Clientes.Application.Clientes.Queries.ConsultarClientePeloTelefone;
+using Clientes.Application.Common.Resultados;
 using Clientes.Domain.Clientes;
-using Clientes.Domain.Common.Exceptions;
+using Clientes.Domain.Clientes.Erros;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using UnitTests.Utils;
@@ -36,7 +37,7 @@ public sealed class ConsultarClientePeloTelefoneTests : IClassFixture<BaseTestFi
         var result = await handler.Handle(query, CancellationToken.None);
         
         // Assert
-        result.Should().BeEquivalentTo(cliente.ToViewModel());
+        result.Valor.Should().BeEquivalentTo(cliente.ToViewModel());
     }
     
     [Fact]
@@ -50,9 +51,9 @@ public sealed class ConsultarClientePeloTelefoneTests : IClassFixture<BaseTestFi
         };
         
         // Act
-        var act = handler.Awaiting(h => h.Handle(query, CancellationToken.None));
+        var resultado = await handler.Handle(query, CancellationToken.None);
         
         // Assert
-        await act.Should().ThrowAsync<ClienteNaoEncontradoException>();
+        resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.ClienteNaoEncontrado));
     }
 }

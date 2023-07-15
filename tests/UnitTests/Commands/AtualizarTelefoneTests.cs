@@ -1,9 +1,9 @@
 ﻿using Clientes.Application.Clientes.Commands.AtualizarTelefone;
+using Clientes.Application.Common.Resultados;
 using Clientes.Domain.Clientes.DTOs;
 using Clientes.Domain.Clientes.Enums;
-using Clientes.Domain.Common.Exceptions;
+using Clientes.Domain.Clientes.Erros;
 using FluentAssertions;
-using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using UnitTests.Utils;
@@ -29,14 +29,14 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
         var command = new AtualizarTelefoneCommand
         {
             ClienteId = Guid.NewGuid(),
-            Telefone = new AtualizarTelefoneInput{TelefoneId = Guid.NewGuid(), Numero = "12345678", DDD = "23", Tipo = TipoTelefone.Fixo}
+            Telefone = new AtualizarTelefoneInput{Id = Guid.NewGuid(), Numero = "12345678", DDD = "23", Tipo = TipoTelefone.Fixo}
         };
         
         // Act
-        var act = handler.Awaiting(h => h.Handle(command, CancellationToken.None));
+        var resultado = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<ClienteNaoEncontradoException>();
+        resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.ClienteNaoEncontrado));
 
         _fixture.ContextMock
             .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
@@ -53,14 +53,14 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
         var command = new AtualizarTelefoneCommand
         {
             ClienteId = cliente.Id.Value,
-            Telefone = new AtualizarTelefoneInput{TelefoneId = Guid.NewGuid(), Numero = "12345678", DDD = "23", Tipo = TipoTelefone.Fixo}
+            Telefone = new AtualizarTelefoneInput{Id = Guid.NewGuid(), Numero = "12345678", DDD = "24", Tipo = TipoTelefone.Fixo}
         };
 
         // Act
-        var act = handler.Awaiting(h => h.Handle(command, CancellationToken.None));
+        var resultado = await handler.Handle(command, CancellationToken.None);
         
         // Assert
-        await act.Should().ThrowAsync<TelefoneEmUsoException>();
+        resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.TelefoneNaoEncontrado));
 
         _fixture.ContextMock
             .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
@@ -82,7 +82,7 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
             ClienteId = cliente.Id.Value,
             Telefone = new AtualizarTelefoneInput
             {
-                TelefoneId = telefone.Id.Value, Numero = "12345678", DDD = "23", Tipo = TipoTelefone.Fixo
+                Id = telefone.Id.Value, Numero = "12345678", DDD = "25", Tipo = TipoTelefone.Fixo
             }
         };
 
@@ -92,7 +92,7 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
         var result = await handler.Handle(command, CancellationToken.None);
         
         // Assert
-        result.Should().Be(Unit.Value);
+        result.Should().Be(Resultado.Sucesso);
 
         _fixture.ContextMock
             .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
@@ -101,5 +101,6 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
         var clienteComTelAtualizado = _fixture.ContextMock.Object.Clientes.AsNoTracking()
             .Include(c => c.Telefones.First(t => t.Id == telefone.Id))
             .First();
+        clienteComTelAtualizado.Telefones.Should().Contain(t => t.Numero == command.Telefone.NumeroCompleto);
     }
 }

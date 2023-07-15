@@ -1,19 +1,20 @@
 ﻿using Clientes.Application.Common.Interfaces;
+using Clientes.Application.Common.Resultados;
 using Clientes.Domain.Clientes.DTOs;
+using Clientes.Domain.Clientes.Erros;
 using Clientes.Domain.Clientes.ValueObjects;
-using Clientes.Domain.Common.Exceptions;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
 namespace Clientes.Application.Clientes.Commands.AtualizarTelefone;
 
-public sealed class AtualizarTelefoneCommand : ICommand
+public sealed class AtualizarTelefoneCommand : ICommand<Resultado>
 {
     public Guid ClienteId { get; set; }
     public AtualizarTelefoneInput? Telefone { get; set; }
 }
 
-public sealed class AtualizarTelefoneCommandHandler : ICommandHandler<AtualizarTelefoneCommand>
+public sealed class AtualizarTelefoneCommandHandler : ICommandHandler<AtualizarTelefoneCommand, Resultado>
 {
     private readonly IClientesContext _context;
     private readonly ITimeProvider _timeProvider;
@@ -24,25 +25,28 @@ public sealed class AtualizarTelefoneCommandHandler : ICommandHandler<AtualizarT
         _timeProvider = timeProvider;
     }
 
-    public async ValueTask<Unit> Handle(AtualizarTelefoneCommand command, CancellationToken ct)
+    public async ValueTask<Resultado> Handle(AtualizarTelefoneCommand command, CancellationToken ct)
     {
         var cliente = await _context.Clientes
             .Include(c => c.Telefones
-                .Any(t => t.Id == new TelefoneId(command.Telefone!.TelefoneId))
+                .Any(t => t.Id == new TelefoneId(command.Telefone!.Id))
             )
             .Where(c => c.Id == new ClienteId(command.ClienteId))
             .SingleOrDefaultAsync(ct);
 
         if (cliente is null)
-            throw new ClienteNaoEncontradoException();
+            return new Resultado(ClienteErros.ClienteNaoEncontrado);
         
-        var telefoneEmUso = _context.Clientes.AsNoTracking()
+        var telefoneJaCadastrado = _context.Clientes.AsNoTracking()
             .Any(c => c.Telefones.Any(t => t.Numero == command.Telefone!.NumeroCompleto));
-        if (telefoneEmUso)
-            throw new TelefoneEmUsoException();
+        if (telefoneJaCadastrado)
+            return new Resultado(ClienteErros.TelefoneJaCadastrado);
 
-        cliente.AtualizarTelefone(command.Telefone!, _timeProvider.Now);
+        var erro = cliente.AtualizarTelefone(command.Telefone!, _timeProvider.Now);
+        if (erro != null)
+            return new Resultado(erro);
+
         await _context.SaveChangesAsync(ct);
-        return Unit.Value;
+        return Resultado.Sucesso;
     }
 }

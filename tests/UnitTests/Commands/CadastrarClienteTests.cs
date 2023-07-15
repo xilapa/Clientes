@@ -1,7 +1,9 @@
 ﻿using Clientes.Application.Clientes.Commands.CadastrarCliente;
+using Clientes.Application.Common.Resultados;
 using Clientes.Domain.Clientes.DTOs;
 using Clientes.Domain.Clientes.Enums;
-using Clientes.Domain.Common.Exceptions;
+using Clientes.Domain.Clientes.Erros;
+using Clientes.Domain.Common.Erros;
 using FluentAssertions;
 using Moq;
 using UnitTests.Utils;
@@ -33,11 +35,11 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
         };
 
         // Act
-        var act = handler.Awaiting(h => h.Handle(command, CancellationToken.None));
+        var resultado = await handler.Handle(command, CancellationToken.None);
         
         // Assert
-        await act.Should().ThrowAsync<EmailEmUsoExeception>();
-
+        resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.EmailJaCadastrado));
+            
         _fixture.ContextMock
             .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
                 Times.Never);
@@ -61,12 +63,13 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
         };
 
         // Act
-        var act = handler.Awaiting(h => h.Handle(command, CancellationToken.None));
+        var resultado = await handler.Handle(command, CancellationToken.None);
         
         // Assert
-        await act.Should().ThrowAsync<TelefonesEmUsoException>()
-            .Where(e => jaCadastrados.All(t => e.Message.Contains(t)));
-
+        resultado.Erro.Should().NotBeNull();
+        resultado.Erro!.TipoErro.Should().Be(TipoErro.Conflito);
+        var mensagemConcatenada = string.Concat(resultado.Erro.Mensagens);
+        jaCadastrados.All(t => mensagemConcatenada.Contains(t)).Should().BeTrue();
 
         _fixture.ContextMock
             .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
@@ -97,13 +100,13 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
         };
 
         // Act
-        var clienteView = await handler.Handle(command, CancellationToken.None);
+        var resultado = await handler.Handle(command, CancellationToken.None);
         
         // Assert
-        clienteView!.Id.Should().NotBe(Guid.Empty);
-        clienteView.Telefones.Select(t => t.Id).Should().NotBeNull();
+        resultado.Valor!.Id.Should().NotBe(Guid.Empty);
+        resultado.Valor.Telefones.Select(t => t.Id).Should().NotBeNull();
 
-        clienteView.Should()
+        resultado.Valor.Should()
             .BeEquivalentTo(expectedCliente, o =>
             {
                 o.Excluding(c => c.Id);

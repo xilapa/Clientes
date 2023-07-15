@@ -1,8 +1,9 @@
 ﻿using Clientes.Domain.Clientes.DTOs;
 using Clientes.Domain.Clientes.Entities;
+using Clientes.Domain.Clientes.Erros;
 using Clientes.Domain.Clientes.ValueObjects;
 using Clientes.Domain.Common;
-using Clientes.Domain.Common.Exceptions;
+using Clientes.Domain.Common.Erros;
 
 namespace Clientes.Domain.Clientes;
 
@@ -12,17 +13,17 @@ public sealed class Cliente : BaseAggregateRoot<ClienteId>
     {
         NomeCompleto = nome;
         Email = email;
+        _telefones = new List<Telefone>();
     }
 
     public string NomeCompleto { get; private set; }
     public string Email { get; private set; }
 
-    private List<Telefone>? _telefones;
-    public ICollection<Telefone> Telefones => _telefones ?? new List<Telefone>();
+    private readonly List<Telefone> _telefones;
+    public ICollection<Telefone> Telefones => _telefones.AsReadOnly();
 
     public void CadastrarTelefones(CadastrarTelefoneInput[] telefones, DateTime dataAtual)
     {
-        _telefones ??= new List<Telefone>();
         foreach (var t in telefones)
             _telefones.Add(new Telefone(t.DDD, t.Numero, t.Tipo, dataAtual));
     }
@@ -33,12 +34,13 @@ public sealed class Cliente : BaseAggregateRoot<ClienteId>
         UltimaAtualizacao = dataAtual;
     }
 
-    public void AtualizarTelefone(AtualizarTelefoneInput input, DateTime dataAtual)
+    public Erro? AtualizarTelefone(AtualizarTelefoneInput input, DateTime dataAtual)
     {
-        var telefone = _telefones!.FirstOrDefault(t => t.Id == new TelefoneId(input.TelefoneId));
+        var telefone = _telefones.FirstOrDefault(t => t.Id == new TelefoneId(input.Id));
         if (telefone == null)
-            throw new TelefoneNaoEncontradoException();
+            return ClienteErros.TelefoneNaoEncontrado;
         telefone.Atualizar(input, dataAtual);
         UltimaAtualizacao = dataAtual;
+        return null;
     }
 }
