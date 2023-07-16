@@ -36,6 +36,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\Clientes.Application\Clientes.Application.csproj" />
+      <ProjectReference Include="..\..\src\Clientes.Infra\Clientes.Infra.csproj" />
     </ItemGroup>
 
 </Project>
