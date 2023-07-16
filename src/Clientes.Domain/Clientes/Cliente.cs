@@ -1,6 +1,7 @@
 ﻿using Clientes.Domain.Clientes.DTOs;
 using Clientes.Domain.Clientes.Entities;
 using Clientes.Domain.Clientes.Erros;
+using Clientes.Domain.Clientes.Events;
 using Clientes.Domain.Clientes.ValueObjects;
 using Clientes.Domain.Common;
 using Clientes.Domain.Common.Erros;
@@ -17,25 +18,29 @@ public sealed class Cliente : BaseAggregateRoot<ClienteId>
     {
         NomeCompleto = nome;
         Email = email;
-        _telefones = new List<Telefone>();
+        AddDomainEvent(new ClienteCadastradoEvent());
     }
 
     public string NomeCompleto { get; private set; }
     public string Email { get; private set; }
 
-    private readonly List<Telefone> _telefones;
+    private readonly List<Telefone> _telefones = new();
     public IReadOnlyCollection<Telefone> Telefones => _telefones;
 
     public void CadastrarTelefones(HashSet<TelefoneInput> telefones, DateTime dataAtual)
     {
         foreach (var t in telefones)
             _telefones.Add(new Telefone(t, dataAtual));
+
+        if (!DomainEvents.Any(d => d is ClienteCadastradoEvent))
+            AddDomainEvent(new ClienteAlteradoEvent(this));
     }
 
     public void AtualizarEmail(string email, DateTime dataAtual)
     {
         Email = email;
         UltimaAtualizacao = dataAtual;
+        AddDomainEvent(new ClienteAlteradoEvent(this));
     }
 
     public Erro? AtualizarTelefone(TelefoneId id, TelefoneInput input, DateTime dataAtual)
@@ -43,6 +48,8 @@ public sealed class Cliente : BaseAggregateRoot<ClienteId>
         var telefone = _telefones.Find(t => t.Id == id);
         if (telefone == null)
             return ClienteErros.TelefoneNaoEncontrado;
+
+        AddDomainEvent(new ClienteAlteradoEvent(this));
         telefone.Atualizar(input, dataAtual);
         UltimaAtualizacao = dataAtual;
         return null;

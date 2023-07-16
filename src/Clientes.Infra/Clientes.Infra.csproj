@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="BitFaster.Caching" />
       <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
       <PackageReference Include="Mediator.SourceGenerator">
         <PrivateAssets>all</PrivateAssets>

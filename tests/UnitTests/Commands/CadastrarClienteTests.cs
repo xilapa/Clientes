@@ -18,8 +18,8 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
     public CadastrarClienteTests(BaseTestFixture fixture)
     {
         _fixture = fixture;
-        _fixture.ContextMock.Invocations.Clear();
-        _handler = new CadastrarClienteCommandHandler(_fixture.ContextMock.Object, _fixture.TimeProvider);
+        _fixture.UowMock.Invocations.Clear();
+        _handler = new CadastrarClienteCommandHandler(_fixture.ClientesRepository, _fixture.TimeProvider, _fixture.UowMock.Object);
     }
 
     [Fact]
@@ -41,9 +41,7 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
         // Assert
         resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.EmailJaCadastrado));
 
-        _fixture.ContextMock
-            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Never);
+        _fixture.UowMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Theory]
@@ -71,9 +69,7 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
         var mensagemConcatenada = string.Concat(resultado.Erro.Mensagens);
         jaCadastrados.All(t => mensagemConcatenada.Contains(t)).Should().BeTrue();
 
-        _fixture.ContextMock
-            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Never);
+        _fixture.UowMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -89,7 +85,7 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
             }
         };
 
-        var expectedCliente = new ClienteView
+        var clienteEsperado = new ClienteView
         {
             NomeCompleto = "nome", Email = "email@email.com",
             Telefones = new TelefoneView[]
@@ -106,15 +102,13 @@ public sealed class CadastrarClienteTests : IClassFixture<BaseTestFixture>
         resultado.Valor.Telefones.Select(t => t.Id).Should().NotBeNull();
 
         resultado.Valor.Should()
-            .BeEquivalentTo(expectedCliente, o =>
+            .BeEquivalentTo(clienteEsperado, o =>
             {
                 o.Excluding(c => c.Id);
                 o.For(c => c.Telefones).Exclude(t => t.Id);
                 return o;
             });
 
-        _fixture.ContextMock
-            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Once);
+        _fixture.UowMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

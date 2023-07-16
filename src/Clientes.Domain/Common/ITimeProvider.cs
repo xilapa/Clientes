@@ -1,4 +1,4 @@
-﻿namespace Clientes.Application.Common;
+﻿namespace Clientes.Domain.Common;
 
 public interface ITimeProvider
 {

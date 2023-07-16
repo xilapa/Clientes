@@ -3,6 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="BitFaster.Caching" Version="2.2.0" />
     <PackageVersion Include="FluentAssertions" Version="6.11.0" />
     <PackageVersion Include="FluentValidation" Version="11.6.0" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.6.0" />

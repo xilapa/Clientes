@@ -10,12 +10,12 @@ public abstract class BaseEntityConfiguration<T, TId> : IEntityTypeConfiguration
 {
     public virtual void Configure(EntityTypeBuilder<T> builder)
     {
-        builder.HasKey(m => m.Id);
+        builder.HasKey(e => e.Id);
 
-        builder.Property(m => m.CriadoEm)
+        builder.Property(e => e.CriadoEm)
             .IsRequired();
 
-        builder.Property(m => m.UltimaAtualizacao)
+        builder.Property(e => e.UltimaAtualizacao)
             .IsRequired();
     }
 }

@@ -17,8 +17,9 @@ public sealed class AtualizarEmailTests : IClassFixture<BaseTestFixture>
     public AtualizarEmailTests(BaseTestFixture fixture)
     {
         _fixture = fixture;
-        _fixture.ContextMock.Invocations.Clear();
-        _handler = new AtualizarEmailCommandHandler(_fixture.ContextMock.Object, _fixture.TimeProvider);
+        _fixture.UowMock.Invocations.Clear();
+        _handler = new AtualizarEmailCommandHandler(_fixture.ClientesRepository, _fixture.TimeProvider,
+            _fixture.UowMock.Object);
     }
 
     [Fact]
@@ -37,9 +38,7 @@ public sealed class AtualizarEmailTests : IClassFixture<BaseTestFixture>
         // Assert
         resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.ClienteNaoEncontrado));
 
-        _fixture.ContextMock
-            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Never);
+        _fixture.UowMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -63,9 +62,7 @@ public sealed class AtualizarEmailTests : IClassFixture<BaseTestFixture>
         // Assert
         resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.EmailJaCadastrado));
 
-        _fixture.ContextMock
-            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Never);
+        _fixture.UowMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -73,7 +70,7 @@ public sealed class AtualizarEmailTests : IClassFixture<BaseTestFixture>
     {
         // Arrange
         const string novoEmail = "novo@email.com";
-        var cliente = _fixture.ContextMock.Object.Clientes.AsNoTracking().First();
+        var cliente = _fixture.ContextMock.GetCliente(3);
         cliente.Email.Should().NotBe(novoEmail);
 
         var command = new AtualizarEmailCommand
@@ -88,9 +85,7 @@ public sealed class AtualizarEmailTests : IClassFixture<BaseTestFixture>
         // Assert
         resultado.Should().BeEquivalentTo(Resultado.Sucesso);
 
-        _fixture.ContextMock
-            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Once);
+        _fixture.UowMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
 
         var clienteAtualizado = _fixture.ContextMock.Object.Clientes.First(c => c.Id == cliente.Id);
         clienteAtualizado.Email.Should().Be(novoEmail);

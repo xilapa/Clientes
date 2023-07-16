@@ -2,7 +2,7 @@
 
 namespace Clientes.Infra;
 
-public class Settings
+public sealed class Settings
 {
     [Required]
     public string ConnectionString { get; set; } = null!;

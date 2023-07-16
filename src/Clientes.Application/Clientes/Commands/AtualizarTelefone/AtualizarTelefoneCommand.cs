@@ -1,11 +1,11 @@
-﻿using Clientes.Application.Common;
-using Clientes.Application.Common.Resultados;
+﻿using Clientes.Application.Common.Resultados;
 using Clientes.Application.Common.Validation;
+using Clientes.Domain.Clientes;
 using Clientes.Domain.Clientes.DTOs;
 using Clientes.Domain.Clientes.Erros;
 using Clientes.Domain.Clientes.ValueObjects;
+using Clientes.Domain.Common;
 using Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Clientes.Application.Clientes.Commands.AtualizarTelefone;
 
@@ -18,25 +18,24 @@ public sealed class AtualizarTelefoneCommand : ICommand<Resultado>, IValidable
 
 public sealed class AtualizarTelefoneCommandHandler : ICommandHandler<AtualizarTelefoneCommand, Resultado>
 {
-    private readonly IClientesContext _context;
+    private readonly IClientesRepository _repo;
     private readonly ITimeProvider _timeProvider;
+    private readonly IUow _uow;
 
-    public AtualizarTelefoneCommandHandler(IClientesContext context, ITimeProvider timeProvider)
+    public AtualizarTelefoneCommandHandler(IClientesRepository repo, ITimeProvider timeProvider, IUow uow)
     {
-        _context = context;
+        _repo = repo;
         _timeProvider = timeProvider;
+        _uow = uow;
     }
 
     public async ValueTask<Resultado> Handle(AtualizarTelefoneCommand command, CancellationToken ct)
     {
-        var telefoneJaCadastrado = await _context.TelefoneJaCadastrado(command.Telefone!.DDD, command.Telefone.Numero, ct);
+        var telefoneJaCadastrado = await _repo.TelefoneJaCadastrado(command.Telefone!.DDD, command.Telefone.Numero, ct);
         if (telefoneJaCadastrado)
             return new Resultado(ClienteErros.TelefoneJaCadastrado);
 
-        var cliente = await _context.Clientes
-            .Include(c => c.Telefones)
-            .Where(c => c.Id == command.ClienteId)
-            .SingleOrDefaultAsync(ct);
+        var cliente = await _repo.Get(c => c.Id == command.ClienteId, ct);
 
         if (cliente is null)
             return new Resultado(ClienteErros.ClienteNaoEncontrado);
@@ -45,7 +44,7 @@ public sealed class AtualizarTelefoneCommandHandler : ICommandHandler<AtualizarT
         if (erro != null)
             return new Resultado(erro);
 
-        await _context.SaveChangesAsync(ct);
+        await _uow.SaveChangesAsync(ct);
         return Resultado.Sucesso;
     }
 }

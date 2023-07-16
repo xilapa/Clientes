@@ -1,10 +1,10 @@
-﻿using Clientes.Application.Common;
-using Clientes.Application.Common.Resultados;
+﻿using Clientes.Application.Common.Resultados;
 using Clientes.Application.Common.Validation;
+using Clientes.Domain.Clientes;
 using Clientes.Domain.Clientes.Erros;
 using Clientes.Domain.Clientes.ValueObjects;
+using Clientes.Domain.Common;
 using Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Clientes.Application.Clientes.Commands.AtualizarEmail;
 
@@ -16,29 +16,30 @@ public sealed class AtualizarEmailCommand : ICommand<Resultado>, IValidable
 
 public sealed class AtualizarEmailCommandHandler : ICommandHandler<AtualizarEmailCommand, Resultado>
 {
-    private readonly IClientesContext _context;
+    private readonly IClientesRepository _repo;
     private readonly ITimeProvider _timeProvider;
+    private readonly IUow _uow;
 
-    public AtualizarEmailCommandHandler(IClientesContext context, ITimeProvider timeProvider)
+    public AtualizarEmailCommandHandler(IClientesRepository repo, ITimeProvider timeProvider, IUow uow)
     {
-        _context = context;
+        _repo = repo;
         _timeProvider = timeProvider;
+        _uow = uow;
     }
 
     public async ValueTask<Resultado> Handle(AtualizarEmailCommand command, CancellationToken ct)
     {
-        var emailEmUso = await _context.EmailJaCadastrado(command.Email, ct);
+        var emailEmUso = await _repo.EmailJaCadastrado(command.Email, ct);
         if (emailEmUso)
             return new Resultado(ClienteErros.EmailJaCadastrado);
 
-        var cliente = await _context.Clientes
-            .SingleOrDefaultAsync(c => c.Id == command.ClienteId, ct);
+        var cliente = await _repo.Get(c => c.Id == command.ClienteId, ct);
 
         if (cliente is null)
             return new Resultado(ClienteErros.ClienteNaoEncontrado);
 
         cliente.AtualizarEmail(command.Email, _timeProvider.Now);
-        await _context.SaveChangesAsync(ct);
+        await _uow.SaveChangesAsync(ct);
         return Resultado.Sucesso;
     }
 }

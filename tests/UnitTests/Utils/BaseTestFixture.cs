@@ -1,8 +1,10 @@
-﻿using Clientes.Application.Common;
-using Clientes.Domain.Clientes;
+﻿using Clientes.Domain.Clientes;
 using Clientes.Domain.Clientes.DTOs;
 using Clientes.Domain.Clientes.Entities;
 using Clientes.Domain.Clientes.Enums;
+using Clientes.Domain.Common;
+using Clientes.Infra.Persistence;
+using Clientes.Infra.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using MockQueryable.Moq;
 using Moq;
@@ -12,7 +14,10 @@ namespace UnitTests.Utils;
 public sealed class BaseTestFixture
 {
     public readonly Mock<IClientesContext> ContextMock;
+    public readonly Mock<IQueryContext> QueryContextMock;
     public readonly ITimeProvider TimeProvider;
+    public readonly ClientesRepository ClientesRepository;
+    public readonly Mock<IUow> UowMock;
 
     public BaseTestFixture()
     {
@@ -35,25 +40,31 @@ public sealed class BaseTestFixture
 
         var clientesMock = clientes.AsQueryable().BuildMockDbSet();
         var telefonesMock = telefones.AsQueryable().BuildMockDbSet();
+
         ContextMock = new Mock<IClientesContext>();
         ContextMock.Setup(c => c.Clientes).Returns(clientesMock.Object);
         ContextMock.Setup(c => c.Telefones).Returns(telefonesMock.Object);
 
+        QueryContextMock = new Mock<IQueryContext>();
+        QueryContextMock.Setup(c => c.Clientes).Returns(clientesMock.Object);
+        QueryContextMock.Setup(c => c.Telefones).Returns(telefonesMock.Object);
+
+        ClientesRepository = new ClientesRepository(ContextMock.Object);
+
         TimeProvider = new Mock<ITimeProvider>().Object;
+        UowMock = new Mock<IUow>();
     }
 }
 
 public static class ContextMockExtensions
 {
-    public static Cliente GetCliente(this Mock<IClientesContext> mockContext, int indice, bool tracking = false)
+    public static Cliente GetCliente(this Mock<IClientesContext> mockContext, int indice)
     {
-        var query = mockContext.Object.Clientes
+        return mockContext.Object.Clientes
             .OrderBy(c => c.CriadoEm)
-            .Include(c => c.Telefones);
-
-        if (!tracking)
-            query.AsNoTracking();
-
-        return query.Skip(indice).First();
+            .Include(c => c.Telefones)
+            .AsNoTracking()
+            .Skip(indice)
+            .First();
     }
 }

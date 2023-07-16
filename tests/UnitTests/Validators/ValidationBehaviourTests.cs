@@ -1,6 +1,6 @@
 ﻿using Clientes.Application.Clientes.Commands.AtualizarEmail;
-using Clientes.Application.Common.Behaviours;
 using Clientes.Application.Common.Resultados;
+using Clientes.Application.Common.Validation;
 using Clientes.Domain.Clientes.ValueObjects;
 using Clientes.Domain.Common.Erros;
 using FluentAssertions;

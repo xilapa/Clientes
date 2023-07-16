@@ -16,7 +16,7 @@ public sealed class ConsultarClientePeloTelefoneTests : IClassFixture<BaseTestFi
     public ConsultarClientePeloTelefoneTests(BaseTestFixture fixture)
     {
         _fixture = fixture;
-        _handler = new ConsultarClientePeloTelefoneQueryHandler(_fixture.ContextMock.Object);
+        _handler = new ConsultarClientePeloTelefoneQueryHandler(_fixture.QueryContextMock.Object);
     }
 
     [Fact]
@@ -45,14 +45,13 @@ public sealed class ConsultarClientePeloTelefoneTests : IClassFixture<BaseTestFi
     public async Task ClienteNaoEhEncontrado()
     {
         // Arrange
-        var handler = new ConsultarClientePeloTelefoneQueryHandler(_fixture.ContextMock.Object);
         var query = new ConsultarClientePeloTelefoneQuery
         {
             DDD = "11", Numero = "33220099"
         };
 
         // Act
-        var resultado = await handler.Handle(query, CancellationToken.None);
+        var resultado = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
         resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.ClienteNaoEncontrado));

@@ -16,7 +16,7 @@ public sealed class ConsultarClientesTests : IClassFixture<BaseTestFixture>
     public ConsultarClientesTests(BaseTestFixture fixture)
     {
         _fixture = fixture;
-        _handler = new ConsultarClientesQueryHandler(_fixture.ContextMock.Object);
+        _handler = new ConsultarClientesQueryHandler(_fixture.QueryContextMock.Object);
     }
 
     [Fact]
@@ -59,10 +59,9 @@ public sealed class ConsultarClientesTests : IClassFixture<BaseTestFixture>
             .First();
 
         var query = new ConsultarClientesQuery {Take = 3, UltimoCriadoEm = ultimoClienteRetornado.CriadoEm};
-        var queryHandler = new ConsultarClientesQueryHandler(_fixture.ContextMock.Object);
 
         // Act
-        var result = await queryHandler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
         await Verify(result);

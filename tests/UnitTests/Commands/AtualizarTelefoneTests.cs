@@ -18,8 +18,9 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
     public AtualizarTelefoneTests(BaseTestFixture fixture)
     {
         _fixture = fixture;
-        _fixture.ContextMock.Invocations.Clear();
-        _handler = new AtualizarTelefoneCommandHandler(_fixture.ContextMock.Object, _fixture.TimeProvider);
+        _fixture.UowMock.Invocations.Clear();
+        _handler = new AtualizarTelefoneCommandHandler(_fixture.ClientesRepository, _fixture.TimeProvider,
+            _fixture.UowMock.Object);
     }
 
     [Fact]
@@ -39,9 +40,7 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
         // Assert
         resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.ClienteNaoEncontrado));
 
-        _fixture.ContextMock
-            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Never);
+        _fixture.UowMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -63,9 +62,7 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
         // Assert
         resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.TelefoneNaoEncontrado));
 
-        _fixture.ContextMock
-            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Never);
+        _fixture.UowMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -93,9 +90,7 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
         // Assert
         resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.TelefoneJaCadastrado));
 
-        _fixture.ContextMock
-            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Never);
+        _fixture.UowMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -121,9 +116,7 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
         // Assert
         resultado.Should().BeEquivalentTo(new Resultado(ClienteErros.TelefoneJaCadastrado));
 
-        _fixture.ContextMock
-            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Never);
+        _fixture.UowMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -152,9 +145,7 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
         // Assert
         result.Should().Be(Resultado.Sucesso);
 
-        _fixture.ContextMock
-            .Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()),
-                Times.Once);
+        _fixture.UowMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
 
         var clienteComTelAtualizado = _fixture.ContextMock.GetCliente(0);
         clienteComTelAtualizado.Telefones.Should()

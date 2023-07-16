@@ -1,12 +1,11 @@
 ﻿using Clientes.Application.Common.Resultados;
-using Clientes.Application.Common.Validation;
 using Clientes.Domain.Common.Erros;
 using FluentValidation;
 using Mediator;
 
-namespace Clientes.Application.Common.Behaviours;
+namespace Clientes.Application.Common.Validation;
 
-public sealed class ValidationBehaviour<TMessage, TResponse> : IPipelineBehavior<TMessage,TResponse> 
+public sealed class ValidationBehaviour<TMessage, TResponse> : IPipelineBehavior<TMessage,TResponse>
     where TMessage : IValidable
     where TResponse : IResultado, new()
 {

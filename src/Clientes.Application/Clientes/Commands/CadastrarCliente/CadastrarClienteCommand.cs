@@ -1,9 +1,9 @@
-﻿using Clientes.Application.Common;
-using Clientes.Application.Common.Resultados;
+﻿using Clientes.Application.Common.Resultados;
 using Clientes.Application.Common.Validation;
 using Clientes.Domain.Clientes;
 using Clientes.Domain.Clientes.DTOs;
 using Clientes.Domain.Clientes.Erros;
+using Clientes.Domain.Common;
 using Mediator;
 
 namespace Clientes.Application.Clientes.Commands.CadastrarCliente;
@@ -17,29 +17,31 @@ public sealed class CadastrarClienteCommand : ICommand<Resultado<ClienteView>>, 
 
 public sealed class CadastrarClienteCommandHandler : ICommandHandler<CadastrarClienteCommand, Resultado<ClienteView>>
 {
-    private readonly IClientesContext _context;
+    private readonly IClientesRepository _repo;
     private readonly ITimeProvider _timeProvider;
+    private readonly IUow _uow;
 
-    public CadastrarClienteCommandHandler(IClientesContext context, ITimeProvider timeProvider)
+    public CadastrarClienteCommandHandler(IClientesRepository repo, ITimeProvider timeProvider, IUow uow)
     {
-        _context = context;
+        _repo = repo;
         _timeProvider = timeProvider;
+        _uow = uow;
     }
 
     public async ValueTask<Resultado<ClienteView>> Handle(CadastrarClienteCommand command, CancellationToken ct)
     {
-        var emailEmUso = await _context.EmailJaCadastrado(command.Email, ct);
+        var emailEmUso = await _repo.EmailJaCadastrado(command.Email, ct);
         if (emailEmUso)
             return new Resultado<ClienteView>(ClienteErros.EmailJaCadastrado);
 
-        var telsEmUso = await _context.TelefonesJaCadastrados(command.Telefones, ct);
+        var telsEmUso = await _repo.TelefonesJaCadastrados(command.Telefones, ct);
         if (telsEmUso.Length != 0)
             return new Resultado<ClienteView>(ClienteErros.TelefonesJaCadastrados(telsEmUso));
 
         var cliente = new Cliente(command.NomeCompleto, command.Email, _timeProvider.Now);
         cliente.CadastrarTelefones(command.Telefones, _timeProvider.Now);
-        _context.Clientes.Add(cliente);
-        await _context.SaveChangesAsync(ct);
+        _repo.Add(cliente);
+        await _uow.SaveChangesAsync(ct);
         return new Resultado<ClienteView>(cliente.ToViewModel());
     }
 }

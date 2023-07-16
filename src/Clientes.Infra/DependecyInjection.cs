@@ -1,7 +1,10 @@
 ﻿using Clientes.Application.Clientes.Commands.CadastrarCliente;
-using Clientes.Application.Common;
-using Clientes.Application.Common.Behaviours;
+using Clientes.Application.Common.Cache;
+using Clientes.Application.Common.Validation;
+using Clientes.Domain.Clientes;
+using Clientes.Domain.Common;
 using Clientes.Infra.Persistence;
+using Clientes.Infra.Persistence.Repositories;
 using Clientes.Infra.Services;
 using FluentValidation;
 using Mediator;
@@ -29,6 +32,13 @@ public static class DependencyInjection
 #endif
         });
         services.AddScoped<IClientesContext>(sp => sp.GetRequiredService<ClientesContext>());
+        services.AddScoped<IQueryContext>(sp => sp.GetRequiredService<ClientesContext>());
+        services.AddScoped<IUow, Uow>();
+
+        services.AddScoped<IClientesRepository, ClientesRepository>();
+
+        services.AddScoped<ITimeProvider, TimeProvider>();
+        services.AddSingleton<ICache, MemoryCache>();
 
         return services;
     }
@@ -36,13 +46,13 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddValidatorsFromAssemblyContaining<CadastrarClienteCommandValidator>();
-        services.AddScoped<ITimeProvider, TimeProvider>();
         services.AddMediator(opts =>
         {
             opts.Namespace = "Clientes.Infra.Mediator";
             opts.ServiceLifetime = ServiceLifetime.Scoped;
         });
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(CacheBehaviour<,>));
         return services;
     }
 
