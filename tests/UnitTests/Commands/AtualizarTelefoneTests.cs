@@ -3,6 +3,7 @@ using Clientes.Application.Common.Resultados;
 using Clientes.Domain.Clientes.DTOs;
 using Clientes.Domain.Clientes.Enums;
 using Clientes.Domain.Clientes.Erros;
+using Clientes.Domain.Clientes.ValueObjects;
 using FluentAssertions;
 using Moq;
 using UnitTests.Utils;
@@ -27,8 +28,8 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
         // Arrange
         var command = new AtualizarTelefoneCommand
         {
-            ClienteId = Guid.NewGuid(),
-            TelefoneId = Guid.NewGuid(),
+            ClienteId = new ClienteId(),
+            TelefoneId = new TelefoneId(),
             Telefone = new TelefoneInput{Numero = "12345678", DDD = "23", Tipo = TipoTelefone.Fixo}
         };
 
@@ -51,8 +52,8 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
 
         var command = new AtualizarTelefoneCommand
         {
-            ClienteId = cliente.Id.Value,
-            TelefoneId = Guid.NewGuid(),
+            ClienteId = cliente.Id,
+            TelefoneId = new TelefoneId(),
             Telefone = new TelefoneInput{Numero = "12345678", DDD = "24", Tipo = TipoTelefone.Fixo}
         };
 
@@ -78,8 +79,8 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
 
         var command = new AtualizarTelefoneCommand
         {
-            ClienteId = cliente.Id.Value,
-            TelefoneId = telefoneExistente.Id.Value,
+            ClienteId = cliente.Id,
+            TelefoneId = telefoneExistente.Id,
             Telefone = new TelefoneInput
             {
                 Numero = telefoneExistente.Numero, DDD = telefoneExistente.DDD, Tipo = TipoTelefone.Fixo
@@ -106,8 +107,8 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
 
         var command = new AtualizarTelefoneCommand
         {
-            ClienteId = cliente.Id.Value,
-            TelefoneId = telefone.Id.Value,
+            ClienteId = cliente.Id,
+            TelefoneId = telefone.Id,
             Telefone = new TelefoneInput
             {
                 Numero = telefone.Numero, DDD = telefone.DDD, Tipo = TipoTelefone.Fixo
@@ -134,8 +135,8 @@ public sealed class AtualizarTelefoneTests : IClassFixture<BaseTestFixture>
 
         var command = new AtualizarTelefoneCommand
         {
-            ClienteId = cliente.Id.Value,
-            TelefoneId = telefone.Id.Value,
+            ClienteId = cliente.Id,
+            TelefoneId = telefone.Id,
             Telefone = new TelefoneInput
             {
                 Numero = "12345678", DDD = "25", Tipo = TipoTelefone.Fixo

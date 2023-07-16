@@ -11,7 +11,7 @@ namespace Clientes.Application.Clientes.Queries.ConsultarClientePeloTelefone;
 public sealed class ConsultarClientePeloTelefoneQuery : IQuery<Resultado<ClienteView>>
 {
     public string DDD { get; set; } = null!;
-    public string Telefone { get; set; } = null!;
+    public string Numero { get; set; } = null!;
 }
 
 public sealed class ConsultarClientePeloTelefoneQueryHandler : IQueryHandler<ConsultarClientePeloTelefoneQuery, Resultado<ClienteView>>
@@ -25,12 +25,12 @@ public sealed class ConsultarClientePeloTelefoneQueryHandler : IQueryHandler<Con
 
     public async ValueTask<Resultado<ClienteView>> Handle(ConsultarClientePeloTelefoneQuery query, CancellationToken ct)
     {
-        if (string.IsNullOrEmpty(query.DDD) || string.IsNullOrEmpty(query.Telefone))
+        if (string.IsNullOrEmpty(query.DDD) || string.IsNullOrEmpty(query.Numero))
             return new Resultado<ClienteView>(ClienteErros.ClienteNaoEncontrado);
 
         var cliente = await _context.Clientes.AsNoTrackingWithIdentityResolution()
             .Include(c => c.Telefones)
-            .Where(c => c.Telefones.Any(t => t.Numero == query.Telefone && t.DDD == query.DDD))
+            .Where(c => c.Telefones.Any(t => t.Numero == query.Numero && t.DDD == query.DDD))
             .Select(c => c.ToViewModel())
             .SingleOrDefaultAsync(ct);
 

@@ -1,4 +1,5 @@
 ﻿using Clientes.Application.Clientes.Commands.AtualizarTelefone;
+using Clientes.Domain.Clientes.ValueObjects;
 using FluentAssertions;
 using static Clientes.Application.Common.Constants.ApplicationErrors;
 
@@ -12,8 +13,8 @@ public sealed class AtualizarTelefoneCommandValidatorTests
         // Arrange
         var command = new AtualizarTelefoneCommand
         {
-            ClienteId = Guid.Empty,
-            TelefoneId = Guid.Empty,
+            ClienteId = new ClienteId(Guid.Empty),
+            TelefoneId = new TelefoneId(Guid.Empty),
             Telefone = null
         };
         var validator = new AtualizarTelefoneCommandValidator();

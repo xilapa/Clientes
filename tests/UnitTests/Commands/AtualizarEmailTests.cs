@@ -1,6 +1,7 @@
 ﻿using Clientes.Application.Clientes.Commands.AtualizarEmail;
 using Clientes.Application.Common.Resultados;
 using Clientes.Domain.Clientes.Erros;
+using Clientes.Domain.Clientes.ValueObjects;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -26,7 +27,7 @@ public sealed class AtualizarEmailTests : IClassFixture<BaseTestFixture>
         // Arrange
         var command = new AtualizarEmailCommand
         {
-            ClienteId = Guid.NewGuid(),
+            ClienteId = new ClienteId(),
             Email = "email@email.com"
         };
 
@@ -52,7 +53,7 @@ public sealed class AtualizarEmailTests : IClassFixture<BaseTestFixture>
 
         var command = new AtualizarEmailCommand
         {
-            ClienteId = cliente.Id.Value,
+            ClienteId = cliente.Id,
             Email = _fixture.ContextMock.Object.Clientes.AsNoTracking().Last().Email
         };
 
@@ -77,7 +78,7 @@ public sealed class AtualizarEmailTests : IClassFixture<BaseTestFixture>
 
         var command = new AtualizarEmailCommand
         {
-            ClienteId = cliente.Id.Value,
+            ClienteId = cliente.Id,
             Email = novoEmail
         };
 

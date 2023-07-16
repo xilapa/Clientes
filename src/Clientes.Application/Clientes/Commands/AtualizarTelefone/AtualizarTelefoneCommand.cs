@@ -11,8 +11,8 @@ namespace Clientes.Application.Clientes.Commands.AtualizarTelefone;
 
 public sealed class AtualizarTelefoneCommand : ICommand<Resultado>, IValidable
 {
-    public Guid ClienteId { get; set; }
-    public Guid TelefoneId { get; set; }
+    public ClienteId ClienteId { get; set; }  = null!;
+    public TelefoneId TelefoneId { get; set; } = null!;
     public TelefoneInput? Telefone { get; set; }
 }
 
@@ -33,17 +33,15 @@ public sealed class AtualizarTelefoneCommandHandler : ICommandHandler<AtualizarT
         if (telefoneJaCadastrado)
             return new Resultado(ClienteErros.TelefoneJaCadastrado);
 
-        var clienteId = new ClienteId(command.ClienteId);
         var cliente = await _context.Clientes
             .Include(c => c.Telefones)
-            .Where(c => c.Id == clienteId)
+            .Where(c => c.Id == command.ClienteId)
             .SingleOrDefaultAsync(ct);
 
         if (cliente is null)
             return new Resultado(ClienteErros.ClienteNaoEncontrado);
 
-        var telefoneId = new TelefoneId(command.TelefoneId);
-        var erro = cliente.AtualizarTelefone(telefoneId, command.Telefone!, _timeProvider.Now);
+        var erro = cliente.AtualizarTelefone(command.TelefoneId, command.Telefone!, _timeProvider.Now);
         if (erro != null)
             return new Resultado(erro);
 

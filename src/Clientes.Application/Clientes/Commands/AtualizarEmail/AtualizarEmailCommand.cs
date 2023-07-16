@@ -10,7 +10,7 @@ namespace Clientes.Application.Clientes.Commands.AtualizarEmail;
 
 public sealed class AtualizarEmailCommand : ICommand<Resultado>, IValidable
 {
-    public Guid ClienteId { get; set; }
+    public ClienteId ClienteId { get; set; } = null!;
     public string Email { get; set; } = null!;
 }
 
@@ -27,14 +27,12 @@ public sealed class AtualizarEmailCommandHandler : ICommandHandler<AtualizarEmai
 
     public async ValueTask<Resultado> Handle(AtualizarEmailCommand command, CancellationToken ct)
     {
-        var clienteId = new ClienteId(command.ClienteId);
-
         var emailEmUso = await _context.EmailJaCadastrado(command.Email, ct);
         if (emailEmUso)
             return new Resultado(ClienteErros.EmailJaCadastrado);
 
         var cliente = await _context.Clientes
-            .SingleOrDefaultAsync(c => c.Id == clienteId, ct);
+            .SingleOrDefaultAsync(c => c.Id == command.ClienteId, ct);
 
         if (cliente is null)
             return new Resultado(ClienteErros.ClienteNaoEncontrado);

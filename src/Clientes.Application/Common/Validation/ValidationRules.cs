@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Clientes.Domain.Clientes.Enums;
+using Clientes.Domain.Common;
 using FluentValidation;
 using static Clientes.Application.Common.Constants.ApplicationErrors;
 
@@ -26,11 +27,11 @@ public static class ValidationRules
             .WithMessage(PropriedadeComValorInvalido(Email));
     }
 
-    public static void ValidarGuid<T>(this IRuleBuilderInitial<T, Guid> ruleBuilder, string propriedade)
+    public static void ValidarIdGuid<T>(this IRuleBuilderInitial<T, IId<Guid>> ruleBuilder, string propriedade)
     {
         ruleBuilder
         .Cascade(CascadeMode.Stop)
-            .NotEmpty()
+            .Must(id => id != null && id.Value != default && id.Value != Guid.Empty)
             .WithMessage(PropriedadeVazia(propriedade));
     }
 
@@ -59,7 +60,7 @@ public static class ValidationRules
         return ruleBuilder
             .NotEmpty()
             .WithMessage(PropriedadeVazia(Numero))
-            .Must(ddd => ValidacaoTelefoneCelular.IsMatch(ddd))
+            .Must(tel => ValidacaoTelefoneCelular.IsMatch(tel))
             .WithMessage((_, valor) => PropriedadeComValorInvalido(Numero, valor));
     }
 
@@ -68,7 +69,7 @@ public static class ValidationRules
         return ruleBuilder
             .NotEmpty()
             .WithMessage(PropriedadeVazia(Numero))
-            .Must(ddd => ValidacaoTelefoneFixo.IsMatch(ddd))
+            .Must(tel => ValidacaoTelefoneFixo.IsMatch(tel))
             .WithMessage((_, valor) => PropriedadeComValorInvalido(Numero, valor));
     }
 }

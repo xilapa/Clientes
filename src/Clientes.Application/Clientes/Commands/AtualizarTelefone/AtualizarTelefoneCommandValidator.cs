@@ -1,5 +1,4 @@
 ﻿using Clientes.Application.Common.Validation;
-using Clientes.Domain.Clientes.DTOs;
 using FluentValidation;
 using static Clientes.Application.Common.Constants.ApplicationErrors;
 
@@ -10,10 +9,10 @@ public sealed class AtualizarTelefoneCommandValidator : AbstractValidator<Atuali
     public AtualizarTelefoneCommandValidator()
     {
         RuleFor(cmmd => cmmd.ClienteId)
-            .ValidarGuid(nameof(AtualizarTelefoneCommand.ClienteId));
+            .ValidarIdGuid(nameof(AtualizarTelefoneCommand.ClienteId));
 
         RuleFor(cmmd => cmmd.TelefoneId)
-            .ValidarGuid(nameof(AtualizarTelefoneCommand.TelefoneId));
+            .ValidarIdGuid(nameof(AtualizarTelefoneCommand.TelefoneId));
 
         RuleFor(cmmd => cmmd.Telefone)
             .Cascade(CascadeMode.Stop)

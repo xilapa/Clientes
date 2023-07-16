@@ -31,7 +31,7 @@ public sealed class ConsultarClientePeloTelefoneTests : IClassFixture<BaseTestFi
 
         var query = new ConsultarClientePeloTelefoneQuery
         {
-            DDD = telefone.DDD, Telefone = telefone.Numero
+            DDD = telefone.DDD, Numero = telefone.Numero
         };
 
         // Act
@@ -48,7 +48,7 @@ public sealed class ConsultarClientePeloTelefoneTests : IClassFixture<BaseTestFi
         var handler = new ConsultarClientePeloTelefoneQueryHandler(_fixture.ContextMock.Object);
         var query = new ConsultarClientePeloTelefoneQuery
         {
-            DDD = "11", Telefone = "33220099"
+            DDD = "11", Numero = "33220099"
         };
 
         // Act

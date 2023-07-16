@@ -11,6 +11,6 @@ public sealed class AtualizarEmailCommandValidator : AbstractValidator<Atualizar
             .ValidarEmail();
 
         RuleFor(cmmd => cmmd.ClienteId)
-            .ValidarGuid(nameof(AtualizarEmailCommand.ClienteId));
+            .ValidarIdGuid(nameof(AtualizarEmailCommand.ClienteId));
     }
 }

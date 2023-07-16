@@ -1,4 +1,5 @@
 ﻿using Clientes.Application.Clientes.Commands.AtualizarEmail;
+using Clientes.Domain.Clientes.ValueObjects;
 using FluentAssertions;
 using static Clientes.Application.Common.Constants.ApplicationErrors;
 
@@ -17,7 +18,7 @@ public sealed class AtualiarEmailValidatorTests
         // Arrange
         var command = new AtualizarEmailCommand
         {
-            ClienteId = Guid.NewGuid(),
+            ClienteId = new ClienteId(),
             Email = "emailinvalido"
         };
 
@@ -39,7 +40,7 @@ public sealed class AtualiarEmailValidatorTests
         // Arrange
         var command = new AtualizarEmailCommand
         {
-            ClienteId = guid,
+            ClienteId = new ClienteId(guid),
             Email = "email@email.com"
         };
 

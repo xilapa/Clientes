@@ -1,6 +1,7 @@
 ﻿using Clientes.Application.Clientes.Commands.AtualizarEmail;
 using Clientes.Application.Common.Behaviours;
 using Clientes.Application.Common.Resultados;
+using Clientes.Domain.Clientes.ValueObjects;
 using Clientes.Domain.Common.Erros;
 using FluentAssertions;
 using static Clientes.Application.Common.Constants.ApplicationErrors;
@@ -23,7 +24,7 @@ public sealed class ValidationBehaviourTests
         // Arrange
         var command = new AtualizarEmailCommand
         {
-            ClienteId = Guid.NewGuid(),
+            ClienteId = new ClienteId(),
             Email = "emailinvalido"
         };
 
@@ -41,7 +42,7 @@ public sealed class ValidationBehaviourTests
         // Arrange
         var command = new AtualizarEmailCommand
         {
-            ClienteId = Guid.NewGuid(),
+            ClienteId = new ClienteId(),
             Email = "email@email.com"
         };
 
